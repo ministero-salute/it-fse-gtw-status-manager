@@ -55,7 +55,7 @@ public final class Constants {
 		/**
 		 * Test profile.
 		 */
-		public static final String TEST = "TEST";
+		public static final String TEST = "test";
 
 		/**
 		 * Dev profile.

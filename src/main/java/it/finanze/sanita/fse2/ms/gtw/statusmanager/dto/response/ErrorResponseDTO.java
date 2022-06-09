@@ -11,7 +11,7 @@ import lombok.Data;
  * 	Error response.
  */
 @Data
-public class ErrorResponseDTO extends AbstractDTO {
+public class ErrorResponseDTO implements AbstractDTO {
 
 	/**
 	 * Codice.

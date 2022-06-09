@@ -1,5 +1,7 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.enums;
 
+import lombok.Getter;
+
 public enum RawValidationEnum {
 
 	OK("00", "OK"),
@@ -7,7 +9,10 @@ public enum RawValidationEnum {
 	VOCABULARY_ERROR("02", "Errore dovuto alle terminologie utilizzate"),
 	SEMANTIC_ERROR("03", "Errore semantico");
 
+	@Getter
 	private String code;
+	
+	@Getter
 	private String description;
 
 	private RawValidationEnum(String inCode, String inDescription) {
@@ -15,12 +20,5 @@ public enum RawValidationEnum {
 		description = inDescription;
 	}
 
-	public String getCode() {
-		return code;
-	}
-
-	public String getDescription() {
-		return description;
-	}
 
 }

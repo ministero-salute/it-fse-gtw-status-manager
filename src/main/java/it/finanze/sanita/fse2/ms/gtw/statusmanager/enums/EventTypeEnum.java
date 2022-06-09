@@ -1,5 +1,7 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.enums;
 
+import lombok.Getter;
+
 public enum EventTypeEnum {
 
     VALIDATION("V"), 
@@ -9,14 +11,13 @@ public enum EventTypeEnum {
 	TS_DOC_VALIDATION("TSV"),
 	TS_DOC_PUBLICATION("TSP");
 
+	@Getter
 	private String code;
 
 	private EventTypeEnum(String inCode) {
 		code = inCode;
 	}
 
-	public String getCode() {
-		return code;
-	}
+
     
 }

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.common.TopicPartition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -28,17 +27,13 @@ import lombok.extern.slf4j.Slf4j;
 public class KafkaConsumerCFG {
 
 	/**
-	 *	Kafka properties.
-	 */
-	@Autowired
-	private KafkaPropertiesCFG kafkaPropCFG;
-
-	/**
 	 *	Kafka consumer properties.
 	 */
 	@Autowired
 	private KafkaConsumerPropertiesCFG kafkaConsumerPropCFG;
 
+	@Autowired
+	private KafkaTopicCFG kafkaTopicCFG;
 
 	/**
 	 * Configurazione consumer.
@@ -107,9 +102,9 @@ public class KafkaConsumerCFG {
 		factory.setConsumerFactory(consumerFactory());
 		
 		// Definizione nome topic deadLetter
-		log.info("TOPIC: " + kafkaPropCFG.getTopic());
-		DeadLetterPublishingRecoverer dlpr = new DeadLetterPublishingRecoverer(deadLetterKafkaTemplate, (record, ex) -> new TopicPartition(kafkaPropCFG.getTopic(), -1));
-		
+//		log.info("TOPIC: " + kafkaPropCFG.getTopic());
+//		DeadLetterPublishingRecoverer dlpr = new DeadLetterPublishingRecoverer(deadLetterKafkaTemplate, (record, ex) -> new TopicPartition(kafkaPropCFG.getTopic(), -1));
+		DeadLetterPublishingRecoverer dlpr =  null;
 		// Set classificazione errori da gestire per la deadLetter.
 		DefaultErrorHandler sceh = new DefaultErrorHandler(dlpr, new FixedBackOff(FixedBackOff.DEFAULT_INTERVAL, FixedBackOff.UNLIMITED_ATTEMPTS));
 		

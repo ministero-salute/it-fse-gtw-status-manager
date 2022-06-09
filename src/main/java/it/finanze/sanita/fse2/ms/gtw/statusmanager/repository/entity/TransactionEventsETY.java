@@ -17,16 +17,16 @@ import lombok.NoArgsConstructor;
 /**
  * Model to save validation events.
  */
-@Document(collection = "transaction_events")
+@Document(collection = "transaction_data")
 @Data
 @NoArgsConstructor
 public class TransactionEventsETY {
 
     @Id
 	private String id;
-	
-	@Field(name = "transactionID")
-	private String transactionID;
+
+	@Field(name = "workflow_instance_id")
+	private String workflowInstanceId;
 
     @Field(name = "last_update")
 	private Date lastUpdate;  

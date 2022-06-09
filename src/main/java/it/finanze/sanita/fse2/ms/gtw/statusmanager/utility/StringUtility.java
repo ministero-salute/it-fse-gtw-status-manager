@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.apache.commons.codec.binary.Hex;
 
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.google.gson.Gson;
 
@@ -15,14 +16,10 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.ValidationExceptio
 import java.text.ParseException;
 
 @Slf4j
+@NoArgsConstructor
 public final class StringUtility {
 
-	/**
-	 * Private constructor to avoid instantiation.
-	 */
-	private StringUtility() {
-		// Constructor intentionally empty.
-	}
+
 
 	/**
 	 * Returns {@code true} if the String passed as parameter is null or empty.

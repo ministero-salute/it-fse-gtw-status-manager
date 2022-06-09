@@ -2,6 +2,9 @@ package it.finanze.sanita.fse2.ms.gtw.statusmanager.utility;
 
 import org.jasypt.util.text.AES256TextEncryptor;
 
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class EncryptDecryptUtility {
 
     /** 
@@ -10,6 +13,8 @@ public class EncryptDecryptUtility {
      *  @param msg
      *  @return String
      */
+
+	
 	public static final String encrypt(String pwd, String msg) {
 	    AES256TextEncryptor textEncryptor = new AES256TextEncryptor();
     	 

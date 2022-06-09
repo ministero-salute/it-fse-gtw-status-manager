@@ -17,7 +17,7 @@ public class TransactionDetailResponseDTO extends ResponseDTO {
 	 */
 	private static final long serialVersionUID = -2144366497297675698L;
 	
-	private final TransactionEventsETY transactionInfo;
+	private final transient TransactionEventsETY transactionInfo;
 	
 	
 	public TransactionDetailResponseDTO() {

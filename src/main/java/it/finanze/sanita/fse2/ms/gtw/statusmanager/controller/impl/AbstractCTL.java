@@ -15,8 +15,13 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.response.LogTraceInfoDTO;
  */
 public abstract class AbstractCTL implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8284964507529194465L;
+	
 	@Autowired
-	private Tracer tracer;
+	private transient Tracer tracer;
 
 	protected LogTraceInfoDTO getLogTraceInfo() {
 		LogTraceInfoDTO out = new LogTraceInfoDTO(null, null);

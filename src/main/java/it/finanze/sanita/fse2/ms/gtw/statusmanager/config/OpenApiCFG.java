@@ -18,6 +18,7 @@ public class OpenApiCFG {
 
 
   public OpenApiCFG() {
+    // Empty Constructor
   }
   
   @Bean
@@ -27,7 +28,7 @@ public class OpenApiCFG {
 	
 	@Bean
 	public OpenApiCustomiser customerGlobalHeaderOpenApiCustomiser() {
-		return openApi -> {
+		return openApi -> 
 			openApi.getPaths().values().forEach(pathItem -> pathItem.readOperations().forEach(operation -> {
 				ApiResponses apiResponses = operation.getResponses();
 				
@@ -41,7 +42,7 @@ public class OpenApiCFG {
 	                                .addMediaType(org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE, media));
 				apiResponses.addApiResponse("default", apiResponse);
 			}));
-		};
+		
 	}
 
 }

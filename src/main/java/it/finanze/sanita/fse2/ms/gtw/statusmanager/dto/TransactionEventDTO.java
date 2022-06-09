@@ -14,7 +14,7 @@ import lombok.Getter;
  */
 @Getter
 @Builder
-public class TransactionEventDTO extends AbstractDTO {
+public class TransactionEventDTO implements AbstractDTO {
 
     /**
 	 * Serial version uid.

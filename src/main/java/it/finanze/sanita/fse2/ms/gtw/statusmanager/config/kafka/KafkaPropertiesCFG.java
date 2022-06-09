@@ -28,12 +28,6 @@ public class KafkaPropertiesCFG implements Serializable {
 	private String producerBootstrapServers;
 	
 	/**
-	 * Topic.
-	 */
-	@Value("${kafka.topic}")
-	private String topic;
-	
-	/**
 	 * Crypto.
 	 */
 	@Value("${kafka.crypto}")

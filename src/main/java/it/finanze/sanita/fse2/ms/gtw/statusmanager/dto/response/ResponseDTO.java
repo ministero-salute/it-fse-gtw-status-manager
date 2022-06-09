@@ -2,6 +2,7 @@ package it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.response;
 
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.AbstractDTO;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -10,7 +11,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ResponseDTO extends AbstractDTO {
+@NoArgsConstructor
+public class ResponseDTO implements AbstractDTO {
 
 	/**
 	 * Trace id log.
@@ -27,11 +29,6 @@ public class ResponseDTO extends AbstractDTO {
 	 */
 	private ErrorResponseDTO error;
 
-	/**
-	 * Instantiates a new response DTO.
-	 */
-	public ResponseDTO() {
-	}
 
 	/**
 	 * Instantiates a new response DTO.

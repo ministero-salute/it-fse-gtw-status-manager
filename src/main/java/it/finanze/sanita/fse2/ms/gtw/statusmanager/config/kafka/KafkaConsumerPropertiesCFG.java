@@ -17,7 +17,12 @@ import lombok.Data;
 @Component
 public class KafkaConsumerPropertiesCFG implements Serializable {
   
-/**
+	/**
+	 * Serial version uid.
+	 */
+	private static final long serialVersionUID = -628383826890016116L;
+
+	/**
 	 * Client id.
 	 */
 	@Value("${kafka.client-id}")

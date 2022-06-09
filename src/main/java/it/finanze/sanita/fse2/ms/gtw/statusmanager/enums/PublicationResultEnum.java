@@ -1,5 +1,7 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.enums;
 
+import lombok.Getter;
+
 public enum PublicationResultEnum {
 
 	OK("00", "Pubblicazione effettuata correttamente."),
@@ -14,20 +16,15 @@ public enum PublicationResultEnum {
 	SIGNED_VALIDATION_ERROR("/msg/document-type", "Verifica della firma fallita."),
 	MANDATORY_ELEMENT_ERROR("/msg/mandatory-element", "Campo obbligatorio non presente.");
 
+	@Getter
 	private String type;
+	
+	@Getter
 	private String title;
 
 	private PublicationResultEnum(String inType, String inTitle) {
 		type = inType;
 		title = inTitle;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public String getTitle() {
-		return title;
 	}
 
 }
