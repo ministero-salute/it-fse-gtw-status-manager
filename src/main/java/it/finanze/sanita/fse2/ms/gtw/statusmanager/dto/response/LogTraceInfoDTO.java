@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class LogTraceInfoDTO implements AbstractDTO {
+public class LogTraceInfoDTO extends AbstractDTO {
 
 	/**
 	 * Span.

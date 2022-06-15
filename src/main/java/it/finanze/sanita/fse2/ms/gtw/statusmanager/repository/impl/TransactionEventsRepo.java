@@ -29,14 +29,14 @@ public class TransactionEventsRepo extends AbstractMongoRepository<TransactionEv
 	private MongoTemplate mongoTemplate;
 
 	@Override
-	public void saveEvent(String workflowInstanceId, String json) {
+	public void saveEvent(String transactionId, String json) {
 		try {
 			Document doc = Document.parse(json);
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS");
 			Date eventDate = sdf.parse(doc.getString("eventDate"));
 			doc.put("eventDate", eventDate);
-			doc.put("workflow_instance_id", workflowInstanceId);
+			doc.put("transactionId", transactionId);
 			mongoTemplate.insert(doc, "transaction_data");
 		} catch(Exception ex){
 			log.error("Error while save event : " , ex);

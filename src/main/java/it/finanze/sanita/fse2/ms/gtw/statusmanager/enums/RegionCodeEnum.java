@@ -1,7 +1,5 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.enums;
 
-import lombok.Getter;
-
 public enum RegionCodeEnum {
 
 	SASN("001","SASN"),
@@ -10,7 +8,7 @@ public enum RegionCodeEnum {
 	LOMBARDIA("030","Regione Lombardia"),
 	PA_BOLZANO("041","P.A. Bolzano"),
 	PA_TRENTO("042","P.A. Trento"),
-	VENETO("050","Regione Veneto"),
+	VENETO_("050","Regione Veneto"),
 	FRIULI_VENEZIA_GIULIA("060","Regione Friuli Venezia Giulia"),
 	LIGURIA("070","Regione Liguria"),
 	EMILIA_ROMAGNA("080","Regione Emilia-Romagna"),
@@ -29,15 +27,20 @@ public enum RegionCodeEnum {
 	MS("999","Ministero della Salute"),
 	INI("000","INI");
 	
-	@Getter
 	private String code;
-	
-	@Getter
 	private String description;
 
 	private RegionCodeEnum(String inCode, String inDescription) {
 		code = inCode;
 		description = inDescription;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public String getCode() {
+		return code;
 	}
 
 }

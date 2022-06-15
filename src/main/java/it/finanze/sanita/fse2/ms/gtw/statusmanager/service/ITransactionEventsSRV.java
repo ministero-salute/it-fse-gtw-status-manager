@@ -4,6 +4,6 @@ import java.io.Serializable;
 
 public interface ITransactionEventsSRV extends Serializable {
 
-	void saveEvent(String workflowInstanceId , String json);
+	void saveEvent(String transactionId , String json);
 
 }

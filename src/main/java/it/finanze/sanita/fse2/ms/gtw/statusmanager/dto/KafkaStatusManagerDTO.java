@@ -8,7 +8,7 @@ import lombok.Getter;
  */
 @Getter
 @Builder
-public class KafkaStatusManagerDTO implements AbstractDTO {
+public class KafkaStatusManagerDTO extends AbstractDTO {
 
 	/**
 	 * Serial version uid.

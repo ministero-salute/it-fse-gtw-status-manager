@@ -1,7 +1,5 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.enums;
 
-import lombok.Getter;
-
 public enum ValidationResultEnum {
 
 	OK("about:blank", "Ok"),
@@ -14,10 +12,7 @@ public enum ValidationResultEnum {
 	SEMANTIC_ERROR("/msg/semantic", "Errore semantico."),
 	VOCABULARY_ERROR("/msg/vocabulary", "Errore vocabolario.");
 
-	@Getter
 	private String type;
-	
-	@Getter
 	private String title;
 
 	private ValidationResultEnum(String inType, String inTitle) {
@@ -25,5 +20,12 @@ public enum ValidationResultEnum {
 		title = inTitle;
 	}
 
+	public String getType() {
+		return type;
+	}
+
+	public String getTitle() {
+		return title;
+	}
 
 }

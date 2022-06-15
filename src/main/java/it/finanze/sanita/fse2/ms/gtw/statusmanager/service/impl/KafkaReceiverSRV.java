@@ -29,19 +29,16 @@ public class KafkaReceiverSRV implements IKafkaReciverSRV {
 	public void listener(final ConsumerRecord<String, String> cr, final MessageHeaders messageHeaders) {
 		log.info("Consuming transaction event - Message received with key {}", cr.key());
 		try {
-			String workflowInstanceId = cr.key();
+			String transactionId = cr.key();
 			String message = cr.value();
-			srvListener(workflowInstanceId, message);
+			String json = EncryptDecryptUtility.decryptObject(kafkaPropCFG.getCrypto(), message, String.class);
+			eventsSRV.saveEvent(transactionId, json);
 		} catch (Exception e) {
 			deadLetterHelper(e);
 			throw new BusinessException(e);
 		}
 	}
     
-	public void srvListener(final String workflowInstanceId, final String message) {
-		String json = EncryptDecryptUtility.decryptObject(kafkaPropCFG.getCrypto(), message, String.class);
-		eventsSRV.saveEvent(workflowInstanceId, json);
-	}
 
 	/**
 	 * @param e

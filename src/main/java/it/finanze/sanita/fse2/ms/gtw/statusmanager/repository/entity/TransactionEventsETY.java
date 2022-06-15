@@ -24,9 +24,9 @@ public class TransactionEventsETY {
 
     @Id
 	private String id;
-
-	@Field(name = "workflow_instance_id")
-	private String workflowInstanceId;
+	
+	@Field(name = "transactionID")
+	private String transactionID;
 
     @Field(name = "last_update")
 	private Date lastUpdate;  
