@@ -1,21 +1,19 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl;
 
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.kafka.KafkaPropertiesCFG;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IKafkaReceiverSRV;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.ITransactionEventsSRV;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.kafka.KafkaPropertiesCFG;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IKafkaReciverSRV;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.ITransactionEventsSRV;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.EncryptDecryptUtility;
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 @Service
-public class KafkaReceiverSRV implements IKafkaReciverSRV {
+public class KafkaReceiverSRV implements IKafkaReceiverSRV {
 	
 	@Autowired
 	private KafkaPropertiesCFG kafkaPropCFG;
@@ -39,8 +37,7 @@ public class KafkaReceiverSRV implements IKafkaReciverSRV {
 	}
     
 	public void srvListener(final String workflowInstanceId, final String message) {
-		String json = EncryptDecryptUtility.decryptObject(kafkaPropCFG.getCrypto(), message, String.class);
-		eventsSRV.saveEvent(workflowInstanceId, json);
+		eventsSRV.saveEvent(workflowInstanceId, message);
 	}
 
 	/**

@@ -1,24 +1,19 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.ActiveProfiles;
 
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
@@ -33,10 +28,8 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.RegionCodeEnum;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ValidationResultEnum;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.ValidationException;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity.TransactionEventsETY;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.impl.TransactionEventsRepo;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl.KafkaReceiverSRV;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.EncryptDecryptUtility;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.StringUtility;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -185,39 +178,6 @@ class UtilityTest {
 			}
 	}
 
-	@Test
-	@DisplayName("encrypt KO ")
-	void utilityEncryptKO() {
-		try {
-			EncryptDecryptUtility.encrypt(null, null);
-		} catch (Exception e) {
-			assertThrows(IllegalArgumentException.class, () -> EncryptDecryptUtility.encrypt(null, null));
-		}
-	}
-	
-	@Test
-	@DisplayName("encrypt OK")
-	void utilityEncryptOK() {
-		EncryptDecryptUtility.encrypt("abcd", null);
-		assertDoesNotThrow(() -> EncryptDecryptUtility.encrypt("abcd", null));
-	}
-	
-	@Test
-	@DisplayName("decrypt KO ")
-	void utilityDecryptKO() {
-		try {
-			EncryptDecryptUtility.decrypt(null, null);
-		} catch (Exception e) {
-			assertThrows(IllegalArgumentException.class, () -> EncryptDecryptUtility.decrypt(null, null));
-		}
-	}
-	
-	@Test
-	@DisplayName("decrypt OK ")
-	void utilityDecryptOK() {
-		EncryptDecryptUtility.decrypt("abcd", null);
-		assertDoesNotThrow(() -> EncryptDecryptUtility.decrypt("abcd", null));
-	}
 	
 	@Test
 	@DisplayName("transaction Events Repo test Ko ")
@@ -225,43 +185,7 @@ class UtilityTest {
 		TransactionEventsRepo transEvRep = new TransactionEventsRepo();
 		assertThrows(BusinessException.class, () -> transEvRep.saveEvent(null, null));
 	}
-	
-	@Test
-	@DisplayName("kafka receiver srv test Ok ")
-	void transactionEvTestOk() {
-		
-			String workflowInstanceId = "abc";
-			String json = "{\"eventDate\":\"2012-01-31T23:59:59.999\"}";
-			String message = EncryptDecryptUtility.encryptObject(kafkaCFG.getCrypto(), json);
-			kafkaSRV.srvListener(workflowInstanceId, message);
-			
-			List<TransactionEventsETY> out = null;
-			Query query = new Query();
-			query.addCriteria(Criteria.where("workflow_instance_id").is(workflowInstanceId));
-			query.with(Sort.by(Sort.Direction.DESC, "eventDate"));
-			out = mongoTemplate.find(query, TransactionEventsETY.class);
-			
-			Boolean sizeList = false;
-			
-			if(out.size()>0) {
-				sizeList = true;
-			}
-			
-			assertEquals(true, sizeList);
-		
-	}
-	
-	@Test
-	@DisplayName("kafka receiver srv test ko")
-	void transactionEvTestExc() {
-		
-		String transactionId = "abc";
-		String json = "";
-		String message = EncryptDecryptUtility.encryptObject(kafkaCFG.getCrypto(), json);
-		
-		assertThrows(BusinessException.class, () -> kafkaSRV.srvListener(transactionId, message));
-
-	}
+ 
 	
 	@Test
 	@DisplayName("Test transaction events")

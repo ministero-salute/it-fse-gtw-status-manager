@@ -42,7 +42,15 @@ public final class Constants {
 		 * Configuration mongo repository path.
 		 */
 		public static final String REPOSITORY_MONGO = "it.sanita.statusmanager.repository";
-		 
+
+		public static final class Collections {
+
+			public static final String TRANSACTION_DATA = "transaction_data";
+
+			private Collections() {
+
+			}
+		}
 		
 		private ComponentScan() {
 			//This method is intentionally left blank.
@@ -56,6 +64,8 @@ public final class Constants {
 		 * Test profile.
 		 */
 		public static final String TEST = "test";
+
+		public static final String TEST_PREFIX = "test_";
 
 		/**
 		 * Dev profile.
