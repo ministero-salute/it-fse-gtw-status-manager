@@ -1,22 +1,19 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.kafka.KafkaPropertiesCFG;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IKafkaReceiverSRV;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.ITransactionEventsSRV;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IKafkaReceiverSRV;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.ITransactionEventsSRV;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Service
 public class KafkaReceiverSRV implements IKafkaReceiverSRV {
-	
-	@Autowired
-	private KafkaPropertiesCFG kafkaPropCFG;
 
 	@Autowired
 	private ITransactionEventsSRV eventsSRV;

@@ -1,13 +1,17 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.kafka.KafkaPropertiesCFG;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.record.TimestampType;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,13 +21,9 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.test.context.ActiveProfiles;
 
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IKafkaReceiverSRV;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.ITransactionEventsSRV;
-
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(Constants.Profile.TEST)

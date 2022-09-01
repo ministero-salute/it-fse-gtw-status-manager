@@ -1,13 +1,12 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.repository;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.ProfileUtility;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Slf4j
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.ProfileUtility;
+
 @Configuration
 public class CollectionNaming {
 

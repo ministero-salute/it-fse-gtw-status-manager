@@ -1,12 +1,11 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.utility;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-@Slf4j
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
+
 @Component
 public class ProfileUtility {
     @Autowired

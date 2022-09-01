@@ -13,7 +13,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
@@ -29,18 +28,11 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ValidationResultEnum;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.ValidationException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.impl.TransactionEventsRepo;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl.KafkaReceiverSRV;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.StringUtility;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(Constants.Profile.TEST)
-class UtilityTest {
-	
-	@Autowired
-	private transient MongoTemplate mongoTemplate;
-
-	@Autowired
-	private KafkaReceiverSRV kafkaSRV;
+class UtilityTest { 
 	
 	@Autowired
 	KafkaPropertiesCFG kafkaCFG;

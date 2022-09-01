@@ -32,9 +32,6 @@ public class KafkaConsumerCFG {
 	@Autowired
 	private KafkaConsumerPropertiesCFG kafkaConsumerPropCFG;
 
-	@Autowired
-	private KafkaTopicCFG kafkaTopicCFG;
-
 	/**
 	 * Configurazione consumer.
 	 * 
@@ -130,6 +127,7 @@ public class KafkaConsumerCFG {
 	/**
 	 * @return	exceptions list
 	 */
+	@SuppressWarnings("unchecked")
 	private List<Class<? extends Exception>> getExceptionsConfig() {
 		List<Class<? extends Exception>> out = new ArrayList<>();
 		String temp = null;
