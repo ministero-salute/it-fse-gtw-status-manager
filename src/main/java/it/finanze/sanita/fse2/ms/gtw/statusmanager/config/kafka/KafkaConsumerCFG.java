@@ -98,7 +98,6 @@ public class KafkaConsumerCFG {
 		ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
 		factory.setConsumerFactory(consumerFactory());
 		
-		// Definizione nome topic deadLetter
 //		log.info("TOPIC: " + kafkaPropCFG.getTopic());
 //		DeadLetterPublishingRecoverer dlpr = new DeadLetterPublishingRecoverer(deadLetterKafkaTemplate, (record, ex) -> new TopicPartition(kafkaPropCFG.getTopic(), -1));
 		DeadLetterPublishingRecoverer dlpr =  null;

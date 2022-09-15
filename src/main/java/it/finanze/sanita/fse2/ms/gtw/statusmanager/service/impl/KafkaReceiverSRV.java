@@ -18,7 +18,6 @@ public class KafkaReceiverSRV implements IKafkaReceiverSRV {
 	@Autowired
 	private ITransactionEventsSRV eventsSRV;
     
-	
 	@Override
 	@KafkaListener(topics = "#{'${kafka.statusmanager.topic}'}",  clientIdPrefix = "#{'${kafka.client-id}'}", containerFactory = "kafkaListenerDeadLetterContainerFactory", autoStartup = "${event.topic.auto.start}", groupId = "#{'${kafka.consumer.group-id}'}")
 	public void listener(final ConsumerRecord<String, String> cr, final MessageHeaders messageHeaders) {
