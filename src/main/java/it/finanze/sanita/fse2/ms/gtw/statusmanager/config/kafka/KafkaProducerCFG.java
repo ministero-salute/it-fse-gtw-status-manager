@@ -34,19 +34,10 @@ public class KafkaProducerCFG {
 	public Map<String, Object> producerWithoutTransactionConfigs() {
 		Map<String, Object> props = new HashMap<>();
 		
-		log.info("clientId: " + kafkaProducerPropCFG.getClientId() + "-noTx");
 		props.put(ProducerConfig.CLIENT_ID_CONFIG, kafkaProducerPropCFG.getClientId() + "-noTx");
-		
-		log.info("producerRetries: " + kafkaProducerPropCFG.getProducerRetries());
 		props.put(ProducerConfig.RETRIES_CONFIG, kafkaProducerPropCFG.getProducerRetries());
-		
-		log.info("producerBootstrapServers: " + kafkaProducerPropCFG.getProducerBootstrapServers());
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProducerPropCFG.getProducerBootstrapServers());
-		
-		log.info("producerKeySerializer: " + kafkaProducerPropCFG.getProducerKeySerializer());
 		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, kafkaProducerPropCFG.getProducerKeySerializer());
-		
-		log.info("producerValueSerializer: " + kafkaProducerPropCFG.getProducerValueSerializer());
 		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, kafkaProducerPropCFG.getProducerValueSerializer());
 		
 		//SSL
