@@ -10,7 +10,6 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.kafka.KafkaPropertiesC
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IKafkaReciverSRV;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.ITransactionEventsSRV;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.EncryptDecryptUtility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -31,8 +30,8 @@ public class KafkaReceiverSRV implements IKafkaReciverSRV {
 		try {
 			String transactionId = cr.key();
 			String message = cr.value();
-			String json = EncryptDecryptUtility.decryptObject(kafkaPropCFG.getCrypto(), message, String.class);
-			eventsSRV.saveEvent(transactionId, json);
+//			String json = EncryptDecryptUtility.decryptObject(kafkaPropCFG.getCrypto(), message, String.class);
+			eventsSRV.saveEvent(transactionId, message);
 		} catch (Exception e) {
 			deadLetterHelper(e);
 			throw new BusinessException(e);
