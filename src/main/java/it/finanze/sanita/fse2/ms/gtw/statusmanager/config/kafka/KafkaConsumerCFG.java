@@ -87,7 +87,7 @@ public class KafkaConsumerCFG {
 		// Set classificazione errori da gestire per la deadLetter.
 		DefaultErrorHandler sceh = new DefaultErrorHandler(dlpr, new FixedBackOff(FixedBackOff.DEFAULT_INTERVAL, FixedBackOff.UNLIMITED_ATTEMPTS));
 		
-		log.info("Setting dead letter classification");
+		log.debug("Setting dead letter classification");
 		setClassification(sceh);
 		
 		// da eliminare se non si volesse gestire la dead letter
