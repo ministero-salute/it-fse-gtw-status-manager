@@ -16,6 +16,7 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.ITransactionEventsRepo;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.ProfileUtility;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.StringUtility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -52,11 +53,15 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 			String eventType = doc.getString("eventType");
 			String eventStatus = doc.getString("eventStatus");
 			Query query = new Query();
-			query.addCriteria(Criteria.where("workflow_instance_id").is(workflowInstanceId).
-					and("eventType").is(eventType).and("eventStatus").is(eventStatus));
+			if(!"UNKNOWN_WORKFLOW_ID".equals(workflowInstanceId)) {
+				query.addCriteria(Criteria.where("workflow_instance_id").is(workflowInstanceId).
+						and("eventType").is(eventType).and("eventStatus").is(eventStatus));
+			} else {
+				query.addCriteria(Criteria.where("traceId").is(doc.getString("traceId")).
+						and("eventType").is(eventType).and("eventStatus").is(eventStatus));
+			}
 			mongoTemplate.upsert(query, Update.fromDocument(doc, "_id"), collection);
 			
-//			mongoTemplate.insert(doc, collection);
 		} catch(Exception ex){
 			log.error("Error while save event : " , ex);
 			throw new BusinessException("Error while save event : " , ex);
