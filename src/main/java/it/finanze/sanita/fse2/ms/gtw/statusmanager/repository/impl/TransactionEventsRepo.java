@@ -19,7 +19,6 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.ITransactionEventsRepo;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.ProfileUtility;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.StringUtility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -31,6 +30,8 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	 */
 	private static final long serialVersionUID = -4017623557412046071L;
 
+	private static final String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+	
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
@@ -41,16 +42,14 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	public void saveEvent(String workflowInstanceId, String json) {
 		try {
 			Document doc = Document.parse(json);
-			
-			String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 			simpleDateFormat.setTimeZone(TimeZone.getDefault());
 			Date eventDate = simpleDateFormat.parse(doc.getString("eventDate"));
 			doc.put("eventDate", eventDate);
 			doc.put("workflow_instance_id", workflowInstanceId);
-			String collection = Constants.ComponentScan.Collections.TRANSACTION_DATA;
+			String collection = Constants.Collections.TRANSACTION_DATA;
 			if (profileUtility.isTestProfile()) {
-				collection = Constants.Profile.TEST_PREFIX + Constants.ComponentScan.Collections.TRANSACTION_DATA;
+				collection = Constants.Profile.TEST_PREFIX + Constants.Collections.TRANSACTION_DATA;
 			}
 			
 			String eventType = doc.getString("eventType");

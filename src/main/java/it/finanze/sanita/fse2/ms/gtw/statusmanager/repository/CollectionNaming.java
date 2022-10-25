@@ -19,8 +19,8 @@ public class CollectionNaming {
     @Bean("transactionDataBean")
     public String getTransactionDataCollection() {
         if (profileUtility.isTestProfile()) {
-            return Constants.Profile.TEST_PREFIX + Constants.ComponentScan.Collections.TRANSACTION_DATA;
+            return Constants.Profile.TEST_PREFIX + Constants.Collections.TRANSACTION_DATA;
         }
-        return Constants.ComponentScan.Collections.TRANSACTION_DATA;
+        return Constants.Collections.TRANSACTION_DATA;
     }
 }
