@@ -25,7 +25,6 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
 
 /**
  * 
- * @author vincenzoingenito
  *
  *	Configuration for MongoDB.
  */

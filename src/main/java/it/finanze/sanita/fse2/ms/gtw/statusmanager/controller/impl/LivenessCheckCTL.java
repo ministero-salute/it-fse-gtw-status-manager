@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * The Class LivenessCheckController.
- * @author vincenzoingenito
  */
 @RestController
 public class LivenessCheckCTL implements HealthIndicator {
