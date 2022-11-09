@@ -4,7 +4,6 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions;
 
 /**
- * @author AndreaPerquoti
  * 
  *         Generic business exception.
  *

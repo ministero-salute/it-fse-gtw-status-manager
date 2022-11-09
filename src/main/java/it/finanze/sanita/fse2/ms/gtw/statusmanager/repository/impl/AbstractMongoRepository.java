@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 
 /**
- *  @author vincenzoingenito
  *  Abstract mongo repository. 
  */
 @Component

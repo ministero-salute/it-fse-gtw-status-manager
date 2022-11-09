@@ -5,7 +5,6 @@ package it.finanze.sanita.fse2.ms.gtw.statusmanager.config;
 
 /**
  * 
- * @author vincenzoingenito
  *
  * Constants application.
  */
