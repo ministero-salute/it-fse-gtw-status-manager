@@ -3,12 +3,14 @@ package it.finanze.sanita.fse2.ms.gtw.statusmanager.client;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.DeleteTxResDTO;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.GetTxResDTO;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 
 public interface IProcessorClient {
 
-    GetTxResDTO getTransactions(Date timestamp, int page, int limit);
+    GetTxResDTO getTransactions(OffsetDateTime timestamp, int page, int limit);
 
-    DeleteTxResDTO deleteTransactions(Date timestamp);
+    GetTxResDTO getTransactions(String url);
+
+    DeleteTxResDTO deleteTransactions(OffsetDateTime timestamp);
 
 }

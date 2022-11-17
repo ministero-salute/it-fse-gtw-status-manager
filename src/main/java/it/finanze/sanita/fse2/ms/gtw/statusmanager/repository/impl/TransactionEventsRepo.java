@@ -3,10 +3,11 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.impl;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.ITransactionEventsRepo;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.ProfileUtility;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -15,11 +16,10 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.ITransactionEventsRepo;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.ProfileUtility;
-import lombok.extern.slf4j.Slf4j;
+import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
+import java.util.Date;
+import java.util.TimeZone;
 
 @Slf4j
 @Repository
@@ -69,5 +69,23 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 			throw new BusinessException("Error while save event : " , ex);
 		}
 	}
-	 
+
+	@Override
+	public void saveEvent(String wif, String type, String outcome, OffsetDateTime timestamp) {
+		// Create document
+		Document doc = new Document();
+		// Update field
+		doc.put("eventDate", new SimpleDateFormat(pattern).format(timestamp));
+		doc.put("workflow_instance_id", wif);
+		doc.put("eventType", type);
+		doc.put("eventStatus", outcome);
+		// Find collection naming
+		String collection = Constants.Collections.TRANSACTION_DATA;
+		if (profileUtility.isTestProfile()) {
+			collection = Constants.Profile.TEST_PREFIX + Constants.Collections.TRANSACTION_DATA;
+		}
+		// Insert
+		mongoTemplate.insert(doc, collection);
+	}
+
 }

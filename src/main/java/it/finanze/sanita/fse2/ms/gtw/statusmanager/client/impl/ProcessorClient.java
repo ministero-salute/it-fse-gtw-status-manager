@@ -10,13 +10,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 
 import static org.springframework.http.HttpMethod.DELETE;
 
 @Slf4j
 @Component
 public class ProcessorClient implements IProcessorClient {
+
+    public static final int CHUNK_LIMIT = 5;
 
     @Autowired
     private RestTemplate client;
@@ -25,10 +27,10 @@ public class ProcessorClient implements IProcessorClient {
     private ProcessorClientRoutes routes;
 
     @Override
-    public GetTxResDTO getTransactions(Date timestamp, int page, int limit) {
+    public GetTxResDTO getTransactions(OffsetDateTime timestamp, int page, int limit) {
 
         String endpoint = routes.getTransactions(page, limit, timestamp);
-        log.debug("{} - Executing request: {}", routes.identifier(), endpoint);
+        log.info("{} - Executing request: {}", routes.identifier(), endpoint);
 
         // Execute request
         ResponseEntity<GetTxResDTO> response = client.getForEntity(
@@ -40,10 +42,23 @@ public class ProcessorClient implements IProcessorClient {
     }
 
     @Override
-    public DeleteTxResDTO deleteTransactions(Date timestamp) {
+    public GetTxResDTO getTransactions(String url) {
+        log.info("{} - Executing request: {}", routes.identifier(), url);
+
+        // Execute request
+        ResponseEntity<GetTxResDTO> response = client.getForEntity(
+            url,
+            GetTxResDTO.class
+        );
+
+        return response.getBody();
+    }
+
+    @Override
+    public DeleteTxResDTO deleteTransactions(OffsetDateTime timestamp) {
 
         String endpoint = routes.deleteTransactions(timestamp);
-        log.debug("{} - Executing request: {}", routes.identifier(), endpoint);
+        log.info("{} - Executing request: {}", routes.identifier(), endpoint);
 
         // Execute request
         ResponseEntity<DeleteTxResDTO> response = client.exchange(
