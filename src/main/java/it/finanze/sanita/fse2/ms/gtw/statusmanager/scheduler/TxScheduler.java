@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.time.OffsetDateTime;
 
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.impl.ProcessorClient.CHUNK_LIMIT;
@@ -25,11 +24,6 @@ public class TxScheduler {
 
     @Autowired
     private ITransactionEventsRepo transaction;
-
-    @PostConstruct
-    public void run() {
-        action();
-    }
 
     @Scheduled(cron = "${scheduler.tx-scheduler}")
     @SchedulerLock(name = "invokeTxScheduler" , lockAtMostFor = "60m")
