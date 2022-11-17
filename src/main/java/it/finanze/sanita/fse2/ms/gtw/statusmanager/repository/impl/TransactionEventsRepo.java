@@ -21,6 +21,8 @@ import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.TimeZone;
 
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
+
 @Slf4j
 @Repository
 public class TransactionEventsRepo implements ITransactionEventsRepo {
@@ -75,7 +77,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 		// Create document
 		Document doc = new Document();
 		// Update field
-		doc.put("eventDate", new SimpleDateFormat(pattern).format(timestamp));
+		doc.put("eventDate", ISO_DATE_TIME.format(timestamp));
 		doc.put("workflow_instance_id", wif);
 		doc.put("eventType", type);
 		doc.put("eventStatus", outcome);
