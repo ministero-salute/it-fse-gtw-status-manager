@@ -20,7 +20,7 @@
 		<!-- Application -->
 		<java.version>1.8</java.version>
 		<spring-cloud.version>2021.0.1</spring-cloud.version>
-		<start-class>it.finanze.sanita.fse2.ms.gtw.statusmanager.StatusmanagerApplication</start-class>
+		<start-class>it.finanze.sanita.fse2.ms.gtw.statusmanager.StatusManagerApplication</start-class>
 		<!-- Build -->
 		<config.infra>${project.basedir}/infrastructure</config.infra>
 		<container.output>target/container</container.output>
@@ -91,6 +91,18 @@
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongodb-driver-sync</artifactId>
+		</dependency>
+
+		<!-- SHEDLOCK -->
+		<dependency>
+			<groupId>net.javacrumbs.shedlock</groupId>
+			<artifactId>shedlock-spring</artifactId>
+			<version>4.42.0</version>
+		</dependency>
+		<dependency>
+			<groupId>net.javacrumbs.shedlock</groupId>
+			<artifactId>shedlock-provider-mongo</artifactId>
+			<version>4.42.0</version>
 		</dependency>
 
 		<!-- DEVTOOL -->

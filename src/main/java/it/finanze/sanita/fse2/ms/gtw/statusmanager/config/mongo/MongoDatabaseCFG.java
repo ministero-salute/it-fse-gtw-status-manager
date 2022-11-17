@@ -3,15 +3,13 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.config.mongo;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import net.javacrumbs.shedlock.core.LockProvider;
+import net.javacrumbs.shedlock.provider.mongo.MongoLockProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
@@ -38,8 +36,6 @@ public class MongoDatabaseCFG {
     @Autowired
     private ApplicationContext appContext;
 
-    final List<Converter<?, ?>> conversions = new ArrayList<>();
-
     @Bean
     public MongoDatabaseFactory mongoDatabaseFactory(){
         return new SimpleMongoClientDatabaseFactory(mongoPropertiesCFG.getUri());
@@ -57,4 +53,10 @@ public class MongoDatabaseCFG {
         converter.setTypeMapper(new DefaultMongoTypeMapper(null));
         return new MongoTemplate(factory, converter);
     }
+
+    @Bean
+    public LockProvider lockProvider(MongoTemplate template) {
+        return new MongoLockProvider(template.getDb());
+    }
+
 }
