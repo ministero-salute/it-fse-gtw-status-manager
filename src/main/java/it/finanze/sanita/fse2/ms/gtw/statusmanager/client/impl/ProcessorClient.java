@@ -33,7 +33,7 @@ public class ProcessorClient implements IProcessorClient {
     public GetTxResDTO getTransactions(OffsetDateTime timestamp, int page, int limit) {
 
         String endpoint = routes.getTransactions(page, limit, timestamp);
-        log.info("{} - Executing request: {}", routes.identifier(), endpoint);
+        log.debug("{} - Executing request: {}", routes.identifier(), endpoint);
 
         // Execute request
         ResponseEntity<GetTxResDTO> response = client.getForEntity(
@@ -46,7 +46,7 @@ public class ProcessorClient implements IProcessorClient {
 
     @Override
     public GetTxResDTO getTransactions(String url) {
-        log.info("{} - Executing request: {}", routes.identifier(), url);
+        log.debug("{} - Executing request: {}", routes.identifier(), url);
 
         // Execute request
         ResponseEntity<GetTxResDTO> response = client.getForEntity(
@@ -61,7 +61,7 @@ public class ProcessorClient implements IProcessorClient {
     public DeleteTxResDTO deleteTransactions(OffsetDateTime timestamp) {
 
         String endpoint = routes.deleteTransactions(timestamp);
-        log.info("{} - Executing request: {}", routes.identifier(), endpoint);
+        log.debug("{} - Executing request: {}", routes.identifier(), endpoint);
 
         // Execute request
         ResponseEntity<DeleteTxResDTO> response = client.exchange(

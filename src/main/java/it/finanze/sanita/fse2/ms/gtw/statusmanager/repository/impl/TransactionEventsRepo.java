@@ -33,6 +33,9 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	private static final long serialVersionUID = -4017623557412046071L;
 
 	private static final String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+
+	private static final String FHIR_OUTCOME = "SUCCESS";
+	private static final String FHIR_TYPE = "FHIR_PROCESSING";
 	
 	@Autowired
 	private MongoTemplate mongoTemplate;
@@ -73,14 +76,14 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	}
 
 	@Override
-	public void saveEvent(String wif, String type, String outcome, OffsetDateTime timestamp) {
+	public void saveEventFhir(String wif, OffsetDateTime timestamp) {
 		// Create document
 		Document doc = new Document();
 		// Update field
 		doc.put("eventDate", ISO_DATE_TIME.format(timestamp));
 		doc.put("workflow_instance_id", wif);
-		doc.put("eventType", type);
-		doc.put("eventStatus", outcome);
+		doc.put("eventType", FHIR_TYPE);
+		doc.put("eventStatus", FHIR_OUTCOME);
 		// Find collection naming
 		String collection = Constants.Collections.TRANSACTION_DATA;
 		if (profileUtility.isTestProfile()) {

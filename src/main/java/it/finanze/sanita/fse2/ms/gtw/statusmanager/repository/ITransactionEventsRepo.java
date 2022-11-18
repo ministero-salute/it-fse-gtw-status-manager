@@ -13,5 +13,5 @@ public interface ITransactionEventsRepo extends Serializable {
   
 	void saveEvent(String json, String workflowInstanceId);
 
-	void saveEvent(String wif, String type, String outcome, OffsetDateTime timestamp);
+	void saveEventFhir(String wif, OffsetDateTime timestamp);
 }
