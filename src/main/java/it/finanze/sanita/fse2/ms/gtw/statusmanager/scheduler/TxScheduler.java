@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ActionRes.EMPTY;
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.executors.impl.TxExecutor.TITLE;
 
@@ -22,11 +20,6 @@ public class TxScheduler {
 
     @Autowired
     private TxExecutor tx;
-
-    @PostConstruct
-    public void setup() {
-        action();
-    }
 
     @Scheduled(cron = "${scheduler.tx-scheduler}")
     @SchedulerLock(name = "invokeTxScheduler", lockAtMostFor = "60m")
