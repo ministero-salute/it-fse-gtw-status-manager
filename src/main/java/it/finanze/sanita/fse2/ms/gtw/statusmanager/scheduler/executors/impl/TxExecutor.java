@@ -93,22 +93,14 @@ public class TxExecutor extends LExecutor {
         // Working var
         ActionRes res = KO;
         try {
-            // Save request size
-            this.processed = changeset.getWif().size();
-            // Process current one
-            for (String wif : changeset.getWif()) {
-                transaction.saveEventFhir(wif, timestamp);
-            }
+            // Save request and process
+            this.processed = transaction.saveEventsFhir(changeset.getWif(), timestamp);
             // Iterate until data is exhausted given a previous request
             while (changeset.getLinks().getNext() != null) {
                 // Next request
                 changeset = processor.getTransactions(changeset.getLinks().getNext());
-                // Save request size
-                processed += changeset.getWif().size();
                 // Save transaction
-                for (String wif : changeset.getWif()) {
-                    transaction.saveEventFhir(wif, timestamp);
-                }
+                this.processed += transaction.saveEventsFhir(changeset.getWif(), timestamp);
             }
             // Flag it
             res = OK;

@@ -10,6 +10,7 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.ProfileUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -19,9 +20,11 @@ import org.springframework.stereotype.Repository;
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
+import static org.springframework.data.mongodb.core.BulkOperations.BulkMode.UNORDERED;
 
 @Slf4j
 @Repository
@@ -38,7 +41,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	private static final String FHIR_TYPE = "FHIR_PROCESSING";
 	
 	@Autowired
-	private MongoTemplate mongoTemplate;
+	private MongoTemplate mongo;
 
 	@Autowired
 	private ProfileUtility profileUtility;
@@ -67,7 +70,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 				query.addCriteria(Criteria.where("traceId").is(doc.getString("traceId")).
 						and("eventType").is(eventType).and("eventStatus").is(eventStatus));
 			}
-			mongoTemplate.upsert(query, Update.fromDocument(doc, "_id"), collection);
+			mongo.upsert(query, Update.fromDocument(doc, "_id"), collection);
 			
 		} catch(Exception ex){
 			log.error("Error while save event : " , ex);
@@ -76,21 +79,35 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	}
 
 	@Override
-	public void saveEventFhir(String wif, OffsetDateTime timestamp) {
-		// Create document
-		Document doc = new Document();
-		// Update field
-		doc.put("eventDate", ISO_DATE_TIME.format(timestamp));
-		doc.put("workflow_instance_id", wif);
-		doc.put("eventType", FHIR_TYPE);
-		doc.put("eventStatus", FHIR_OUTCOME);
-		// Find collection naming
+	public int saveEventsFhir(List<String> wif, OffsetDateTime timestamp) {
+		// Create bulking request
+		BulkOperations ops = mongo.bulkOps(
+			UNORDERED,
+			Document.class,
+			getCollectionNaming()
+		);
+		// Iterate and add on req
+		for (String id : wif) {
+			// Create document
+			Document doc = new Document();
+			// Update field
+			doc.put("eventDate", ISO_DATE_TIME.format(timestamp));
+			doc.put("workflow_instance_id", id);
+			doc.put("eventType", FHIR_TYPE);
+			doc.put("eventStatus", FHIR_OUTCOME);
+			// Add
+			ops.insert(doc);
+		}
+		// Insert
+		return ops.execute().getInsertedCount();
+	}
+
+	public String getCollectionNaming() {
 		String collection = Constants.Collections.TRANSACTION_DATA;
 		if (profileUtility.isTestProfile()) {
 			collection = Constants.Profile.TEST_PREFIX + Constants.Collections.TRANSACTION_DATA;
 		}
-		// Insert
-		mongoTemplate.insert(doc, collection);
+		return collection;
 	}
 
 }
