@@ -3,16 +3,15 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.impl.TransactionEventsRepo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.impl.TransactionEventsRepo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(Constants.Profile.TEST)

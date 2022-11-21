@@ -14,37 +14,11 @@ public final class Constants {
 	 *	Path scan.
 	 */
 	public static final class ComponentScan {
-
-		/**
-		 * Base path.
-		 */
-		public static final String BASE = "it.finanze.sanita.fse2.ms.gtw.statusmanager";
-
-		/**
-		 * Controller path.
-		 */
-		public static final String CONTROLLER = "it.finanze.sanita.fse2.ms.gtw.statusmanager.controller";
-
-		/**
-		 * Service path.
-		 */
-		public static final String SERVICE = "it.finanze.sanita.fse2.ms.gtw.statusmanager.service";
-
-		/**
-		 * Configuration path.
-		 */
-		public static final String CONFIG = "it.finanze.sanita.fse2.ms.gtw.statusmanager.config";
 		
 		/**
 		 * Configuration mongo path.
 		 */
 		public static final String CONFIG_MONGO = "it.finanze.sanita.fse2.ms.gtw.statusmanager.mongo";
-		
-		/**
-		 * Configuration mongo repository path.
-		 */
-		public static final String REPOSITORY_MONGO = "it.finanze.sanita.fse2.ms.gtw.statusmanager.repository";
-
 		
 		private ComponentScan() {
 			//This method is intentionally left blank.
@@ -70,11 +44,6 @@ public final class Constants {
 
 		public static final String TEST_PREFIX = "test_";
 
-		/**
-		 * Dev profile.
-		 */
-		public static final String DEV = "dev";
-
 		/** 
 		 * Constructor.
 		 */
@@ -82,6 +51,13 @@ public final class Constants {
 			//This method is intentionally left blank.
 		}
 
+	}
+
+	public static final class Logs {
+
+		public static final String ERR_REP_FHIR_EVENTS = "Unable to insert FHIR events";
+
+		private Logs() {}
 	}
   
 	/**

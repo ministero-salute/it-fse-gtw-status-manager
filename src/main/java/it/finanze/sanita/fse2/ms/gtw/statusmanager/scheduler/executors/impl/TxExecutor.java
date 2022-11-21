@@ -7,7 +7,7 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IProcessorClient;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.DeleteTxResDTO;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.GetTxResDTO;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ActionRes;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.ITransactionEventsRepo;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.ITransactionEventsRepo;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.actions.base.IActionStepEDS;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.executors.base.LExecutor;
 import lombok.extern.slf4j.Slf4j;

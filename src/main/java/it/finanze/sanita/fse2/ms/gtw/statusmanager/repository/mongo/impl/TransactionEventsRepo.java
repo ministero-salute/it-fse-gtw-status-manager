@@ -1,16 +1,18 @@
 /*
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-package it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.impl;
+package it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.impl;
 
+import com.mongodb.MongoException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.ITransactionEventsRepo;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.OperationException;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity.FhirEvent;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.ITransactionEventsRepo;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.ProfileUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -22,9 +24,10 @@ import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
+import static it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants.Logs.ERR_REP_FHIR_EVENTS;
 import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
-import static org.springframework.data.mongodb.core.BulkOperations.BulkMode.UNORDERED;
 
 @Slf4j
 @Repository
@@ -36,9 +39,6 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	private static final long serialVersionUID = -4017623557412046071L;
 
 	private static final String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-
-	private static final String FHIR_OUTCOME = "SUCCESS";
-	private static final String FHIR_TYPE = "FHIR_PROCESSING";
 	
 	@Autowired
 	private MongoTemplate mongo;
@@ -79,35 +79,24 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	}
 
 	@Override
-	public int saveEventsFhir(List<String> wif, OffsetDateTime timestamp) {
-		// Create bulking request
-		BulkOperations ops = mongo.bulkOps(
-			UNORDERED,
-			Document.class,
-			getCollectionNaming()
-		);
-		// Iterate and add on req
-		for (String id : wif) {
-			// Create document
-			Document doc = new Document();
-			// Update field
-			doc.put("eventDate", ISO_DATE_TIME.format(timestamp));
-			doc.put("workflow_instance_id", id);
-			doc.put("eventType", FHIR_TYPE);
-			doc.put("eventStatus", FHIR_OUTCOME);
-			// Add
-			ops.insert(doc);
-		}
+	public int saveEventsFhir(List<String> wif, OffsetDateTime timestamp) throws OperationException {
+		// Working var
+		int insertions;
+		String time = ISO_DATE_TIME.format(timestamp);
+		// Convert each wif into fhir event
+		// Using .parallel() to speed up the work
+		List<FhirEvent> events = wif
+			.stream()
+			.parallel()
+			.map(id -> FhirEvent.asSuccess(id, time))
+			.collect(Collectors.toList());
 		// Insert
-		return ops.execute().getInsertedCount();
-	}
-
-	public String getCollectionNaming() {
-		String collection = Constants.Collections.TRANSACTION_DATA;
-		if (profileUtility.isTestProfile()) {
-			collection = Constants.Profile.TEST_PREFIX + Constants.Collections.TRANSACTION_DATA;
+		try {
+			insertions = mongo.insertAll(events).size();
+		} catch (MongoException ex) {
+			throw new OperationException(ERR_REP_FHIR_EVENTS, ex);
 		}
-		return collection;
+		return insertions;
 	}
 
 }

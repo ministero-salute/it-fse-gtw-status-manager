@@ -1,7 +1,9 @@
 /*
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
-package it.finanze.sanita.fse2.ms.gtw.statusmanager.repository;
+package it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo;
+
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.OperationException;
 
 import java.io.Serializable;
 import java.time.OffsetDateTime;
@@ -14,5 +16,5 @@ public interface ITransactionEventsRepo extends Serializable {
   
 	void saveEvent(String json, String workflowInstanceId);
 
-	int saveEventsFhir(List<String> wif, OffsetDateTime timestamp);
+	int saveEventsFhir(List<String> wif, OffsetDateTime timestamp) throws OperationException;
 }
