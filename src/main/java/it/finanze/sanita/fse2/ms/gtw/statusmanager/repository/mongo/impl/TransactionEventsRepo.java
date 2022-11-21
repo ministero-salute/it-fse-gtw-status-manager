@@ -4,12 +4,10 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.impl;
 
 import com.mongodb.MongoException;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.OperationException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity.FhirEvent;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.ITransactionEventsRepo;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.ProfileUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +41,6 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	@Autowired
 	private MongoTemplate mongo;
 
-	@Autowired
-	private ProfileUtility profileUtility;
-
 	@Override
 	public void saveEvent(String workflowInstanceId, String json) {
 		try {
@@ -55,11 +50,6 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 			Date eventDate = simpleDateFormat.parse(doc.getString("eventDate"));
 			doc.put("eventDate", eventDate);
 			doc.put("workflow_instance_id", workflowInstanceId);
-			String collection = Constants.Collections.TRANSACTION_DATA;
-			if (profileUtility.isTestProfile()) {
-				collection = Constants.Profile.TEST_PREFIX + Constants.Collections.TRANSACTION_DATA;
-			}
-			
 			String eventType = doc.getString("eventType");
 			String eventStatus = doc.getString("eventStatus");
 			Query query = new Query();
@@ -70,7 +60,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 				query.addCriteria(Criteria.where("traceId").is(doc.getString("traceId")).
 						and("eventType").is(eventType).and("eventStatus").is(eventStatus));
 			}
-			mongo.upsert(query, Update.fromDocument(doc, "_id"), collection);
+			mongo.upsert(query, Update.fromDocument(doc, "_id"), FhirEvent.class);
 			
 		} catch(Exception ex){
 			log.error("Error while save event : " , ex);
