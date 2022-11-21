@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class FhirEvent {
 
     private static final String FHIR_OUTCOME = "SUCCESS";
-    private static final String FHIR_TYPE = "FHIR_PROCESSING";
+    private static final String FHIR_TYPE = "EDS_WORKFLOW";
 
     public static final String FIELD_ID = "_id";
     public static final String FIELD_WIF = "workflow_instance_id";
