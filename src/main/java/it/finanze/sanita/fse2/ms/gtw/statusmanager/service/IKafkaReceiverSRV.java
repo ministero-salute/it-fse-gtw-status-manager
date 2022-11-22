@@ -13,6 +13,8 @@ public interface IKafkaReceiverSRV {
 	 * @param cr
 	 * @param messageHeaders
 	 */
-	void listener(ConsumerRecord<String, String> cr, MessageHeaders messageHeaders);
+	void listenerGtw(ConsumerRecord<String, String> cr, MessageHeaders messageHeaders);
+	
+	void listenerEds(ConsumerRecord<String, String> cr, MessageHeaders messageHeaders);
 
 }

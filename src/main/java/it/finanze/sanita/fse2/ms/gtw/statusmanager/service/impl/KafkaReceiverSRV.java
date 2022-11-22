@@ -23,7 +23,21 @@ public class KafkaReceiverSRV implements IKafkaReceiverSRV {
     
 	@Override
 	@KafkaListener(topics = "#{'${kafka.statusmanager.topic}'}",  clientIdPrefix = "#{'${kafka.client-id}'}", containerFactory = "kafkaListenerDeadLetterContainerFactory", autoStartup = "${event.topic.auto.start}", groupId = "#{'${kafka.consumer.group-id}'}")
-	public void listener(final ConsumerRecord<String, String> cr, final MessageHeaders messageHeaders) {
+	public void listenerGtw(final ConsumerRecord<String, String> cr, final MessageHeaders messageHeaders) {
+		log.debug("Consuming transaction event - Message received with key {}", cr.key());
+		try {
+			String workflowInstanceId = cr.key();
+			String message = cr.value();
+			srvListener(workflowInstanceId, message);
+		} catch (Exception e) {
+			deadLetterHelper(e);
+			throw new BusinessException(e);
+		}
+	}
+	
+	@Override
+	@KafkaListener(topics = "#{'${kafka.statusmanager.eds.topic}'}",  clientIdPrefix = "#{'${kafka.client-eds-id}'}", containerFactory = "kafkaListenerDeadLetterContainerFactoryEds", autoStartup = "${event.topic.auto.start}", groupId = "#{'${kafka.consumer.group-id}'}")
+	public void listenerEds(final ConsumerRecord<String, String> cr, final MessageHeaders messageHeaders) {
 		log.debug("Consuming transaction event - Message received with key {}", cr.key());
 		try {
 			String workflowInstanceId = cr.key();

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.TopicPartition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +35,9 @@ public class KafkaConsumerCFG {
 	 */
 	@Autowired
 	private KafkaConsumerPropertiesCFG kafkaConsumerPropCFG;
+	
+	@Autowired
+	private KafkaTopicCFG topicCFG;
 
 	/**
 	 * Configurazione consumer.
@@ -86,7 +90,25 @@ public class KafkaConsumerCFG {
 		ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
 		factory.setConsumerFactory(consumerFactory());
 		
-		DeadLetterPublishingRecoverer dlpr =  null;
+		DeadLetterPublishingRecoverer dlpr = new DeadLetterPublishingRecoverer(deadLetterKafkaTemplate, (consumerRecord, ex) -> new TopicPartition(topicCFG.getStatusManagerTopicDlt(), -1));;
+		// Set classificazione errori da gestire per la deadLetter.
+		DefaultErrorHandler sceh = new DefaultErrorHandler(dlpr, new FixedBackOff(FixedBackOff.DEFAULT_INTERVAL, FixedBackOff.UNLIMITED_ATTEMPTS));
+		
+		log.debug("Setting dead letter classification");
+		setClassification(sceh);
+		
+		// da eliminare se non si volesse gestire la dead letter
+		factory.setCommonErrorHandler(sceh); 
+
+		return factory;
+	}
+	
+	@Bean
+	public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaListenerDeadLetterContainerFactoryEds(final @Qualifier("notxkafkadeadtemplate") KafkaTemplate<Object, Object> deadLetterKafkaTemplate) {
+		ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+		factory.setConsumerFactory(consumerFactory());
+		
+		DeadLetterPublishingRecoverer dlpr = new DeadLetterPublishingRecoverer(deadLetterKafkaTemplate, (consumerRecord, ex) -> new TopicPartition(topicCFG.getStatusManagerEdsTopicDlt(), -1));;
 		// Set classificazione errori da gestire per la deadLetter.
 		DefaultErrorHandler sceh = new DefaultErrorHandler(dlpr, new FixedBackOff(FixedBackOff.DEFAULT_INTERVAL, FixedBackOff.UNLIMITED_ATTEMPTS));
 		

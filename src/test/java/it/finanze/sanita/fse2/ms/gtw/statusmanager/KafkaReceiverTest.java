@@ -59,7 +59,7 @@ class KafkaReceiverTest {
         records.put(new TopicPartition(topic, 0), new ArrayList<>());
         ConsumerRecord<String, String> errorRecord =
                 new ConsumerRecord<>(topic, 0, 0, "key", "value");
-        assertThrows(BusinessException.class, ()->kafkaReceiverSRV.listener(errorRecord, headers));
+        assertThrows(BusinessException.class, ()->kafkaReceiverSRV.listenerGtw(errorRecord, headers));
     }
 
     @Test
@@ -74,6 +74,6 @@ class KafkaReceiverTest {
         ConsumerRecord<String, String> successRecord =
                 new ConsumerRecord<>(topic, 0, 0, "key", "{\"eventDate\":\"2022-07-29T11:33:35.316-0500\"}");
 
-        assertDoesNotThrow(()->kafkaReceiverSRV.listener(successRecord, headers));
+        assertDoesNotThrow(()->kafkaReceiverSRV.listenerGtw(successRecord, headers));
     }
 }
