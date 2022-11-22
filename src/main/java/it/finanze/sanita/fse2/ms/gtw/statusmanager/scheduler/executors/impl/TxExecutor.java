@@ -3,6 +3,7 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.executors.impl;
 
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IConfigClient;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IProcessorClient;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.DeleteTxResDTO;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.GetTxResDTO;
@@ -10,11 +11,14 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ActionRes;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.ITransactionEventsRepo;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.actions.base.IActionStepEDS;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.executors.base.LExecutor;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IConfigSRV;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.DateUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
+import java.util.Date;
 import java.util.LinkedHashMap;
 
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.impl.ProcessorClient.CHUNK_LIMIT;
@@ -33,6 +37,9 @@ public class TxExecutor extends LExecutor {
 
     @Autowired
     private ITransactionEventsRepo transaction;
+    
+    @Autowired
+    private IConfigSRV configSRV;
 
     private OffsetDateTime timestamp;
 
@@ -93,14 +100,16 @@ public class TxExecutor extends LExecutor {
         // Working var
         ActionRes res = KO;
         try {
+        	//Expiring date
+        	Date exp = DateUtility.addDay(new Date(), configSRV.getExpirationDate());
             // Save request and process
-            this.processed = transaction.saveEventsFhir(changeset.getWif(), timestamp);
+            this.processed = transaction.saveEventsFhir(changeset.getWif(), timestamp ,exp);
             // Iterate until data is exhausted given a previous request
             while (changeset.getLinks().getNext() != null) {
                 // Next request
                 changeset = processor.getTransactions(changeset.getLinks().getNext());
                 // Save transaction
-                this.processed += transaction.saveEventsFhir(changeset.getWif(), timestamp);
+                this.processed += transaction.saveEventsFhir(changeset.getWif(), timestamp, exp);
             }
             // Flag it
             res = OK;

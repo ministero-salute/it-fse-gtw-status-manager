@@ -24,7 +24,7 @@ public class FhirEvent {
     public static final String FIELD_EVENT_DATE = "eventDate";
     public static final String FIELD_EVENT_TYPE = "eventType";
     public static final String FIELD_EVENT_STATUS = "eventStatus";
-
+    public static final String FIELD_EXPIRING_DATE = "expiring_date";
     @Id
     private String id;
     @Field(name = FIELD_WIF)
@@ -35,8 +35,11 @@ public class FhirEvent {
     private String type;
     @Field(name = FIELD_EVENT_STATUS)
     private String status;
+    @Field(name = FIELD_EXPIRING_DATE)
+    private Date expiringDate;
+    
 
-    public static FhirEvent asSuccess(String wif, Date date) {
+    public static FhirEvent asSuccess(String wif, Date date, Date expiringDate) {
         // Create document
         FhirEvent event = new FhirEvent();
         // Update field
@@ -44,6 +47,7 @@ public class FhirEvent {
         event.setDate(date);
         event.setType(FHIR_TYPE);
         event.setStatus(FHIR_OUTCOME);
+        event.setExpiringDate(expiringDate);
         return event;
     }
 

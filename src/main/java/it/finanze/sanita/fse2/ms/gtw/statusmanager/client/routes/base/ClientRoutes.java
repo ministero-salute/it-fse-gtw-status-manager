@@ -18,6 +18,12 @@ public final class ClientRoutes {
         // ENDPOINT
         public static final String API_VERSION = "v1";
         public static final String TRANSACTIONS_PATH = "transactions";
+        
     }
+    
+    public static final class Config {
+
+        private Config() {}
+        public static final String STATUS_PATH = "/status";    }
 
 }

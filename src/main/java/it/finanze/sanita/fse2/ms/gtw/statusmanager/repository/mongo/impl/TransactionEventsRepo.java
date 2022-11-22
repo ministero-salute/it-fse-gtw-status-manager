@@ -80,11 +80,11 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	}
 
 	@Override
-	public int saveEventsFhir(List<String> wif, OffsetDateTime timestamp) throws OperationException {
+	public int saveEventsFhir(List<String> wif, OffsetDateTime timestamp, Date expiringDate) throws OperationException {
 		// Working var
 		int insertions;
 		Date time = Date.from(timestamp.toInstant());
-		Date expiringDate = DateUtility.addDay(new Date(), configSRV.getExpirationDate());
+		
 		// Convert each wif into fhir event
 		// Using .parallel() to speed up the work
 		List<FhirEvent> events = wif
