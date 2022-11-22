@@ -9,6 +9,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.util.Date;
+
 @Document(collection = "#{@transactionDataBean}")
 @Data
 @NoArgsConstructor
@@ -28,13 +30,13 @@ public class FhirEvent {
     @Field(name = FIELD_WIF)
     private String workflowInstanceId;
     @Field(name = FIELD_EVENT_DATE)
-    private String date;
+    private Date date;
     @Field(name = FIELD_EVENT_TYPE)
     private String type;
     @Field(name = FIELD_EVENT_STATUS)
     private String status;
 
-    public static FhirEvent asSuccess(String wif, String date) {
+    public static FhirEvent asSuccess(String wif, Date date) {
         // Create document
         FhirEvent event = new FhirEvent();
         // Update field
