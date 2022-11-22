@@ -25,7 +25,6 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants.Logs.ERR_REP_FHIR_EVENTS;
-import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 
 @Slf4j
 @Repository
@@ -72,7 +71,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	public int saveEventsFhir(List<String> wif, OffsetDateTime timestamp) throws OperationException {
 		// Working var
 		int insertions;
-		String time = ISO_DATE_TIME.format(timestamp);
+		Date time = Date.from(timestamp.toInstant());
 		// Convert each wif into fhir event
 		// Using .parallel() to speed up the work
 		List<FhirEvent> events = wif
