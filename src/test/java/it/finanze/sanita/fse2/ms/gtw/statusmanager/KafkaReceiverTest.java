@@ -5,6 +5,7 @@ package it.finanze.sanita.fse2.ms.gtw.statusmanager;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.given;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,11 +19,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Description;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.test.context.ActiveProfiles;
 
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IConfigClient;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IKafkaReceiverSRV;
@@ -40,10 +43,14 @@ class KafkaReceiverTest {
 
     @Value("${kafka.statusmanager.topic}")
     String topic;
+    
+    @MockBean
+	private IConfigClient configClient;
 
     @Test
     @Description("Generic error test on status manager listener - wrong json")
     void kafkaReceiverErrorTest() {
+    	given(configClient.getExpirationDate()).willReturn(0);
         Map<String, Object> map = new HashMap<>();
         MessageHeaders headers = new MessageHeaders(map);
 

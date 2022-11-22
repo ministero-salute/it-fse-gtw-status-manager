@@ -19,6 +19,12 @@ public class MicroservicesURLCFG {
 	 */
 	@Value("${ms.url.eds-processor-service}")
 	private String processorHost;
+	
+	/**
+	 * Config gtw host.
+	 */
+	@Value("${ms.url.gtw-config}")
+	private String configHost;
 
 	/**
 	 * Definizione rest template.

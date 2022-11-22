@@ -3,19 +3,8 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.impl;
 
-import com.mongodb.MongoException;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.OperationException;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity.FhirEvent;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.ITransactionEventsRepo;
-import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.stereotype.Repository;
+import static it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants.Logs.ERR_REP_FHIR_EVENTS;
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
@@ -24,8 +13,23 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
-import static it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants.Logs.ERR_REP_FHIR_EVENTS;
-import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
+import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Repository;
+
+import com.mongodb.MongoException;
+
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.OperationException;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity.FhirEvent;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.ITransactionEventsRepo;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IConfigSRV;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.DateUtility;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Repository
@@ -40,6 +44,9 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	
 	@Autowired
 	private MongoTemplate mongo;
+	
+	@Autowired
+	private IConfigSRV configSRV;
 
 	@Override
 	public void saveEvent(String workflowInstanceId, String json) {
@@ -60,6 +67,9 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 				query.addCriteria(Criteria.where("traceId").is(doc.getString("traceId")).
 						and("eventType").is(eventType).and("eventStatus").is(eventStatus));
 			}
+			
+			Date expiringDate = DateUtility.addDay(new Date(), configSRV.getExpirationDate());
+			doc.put("expiring_date", expiringDate);
 			mongo.upsert(query, Update.fromDocument(doc, "_id"), FhirEvent.class);
 			
 		} catch(Exception ex){
@@ -73,12 +83,15 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 		// Working var
 		int insertions;
 		String time = ISO_DATE_TIME.format(timestamp);
+		
+		Date expiringDate = DateUtility.addDay(new Date(), configSRV.getExpirationDate());
+		
 		// Convert each wif into fhir event
 		// Using .parallel() to speed up the work
 		List<FhirEvent> events = wif
 			.stream()
 			.parallel()
-			.map(id -> FhirEvent.asSuccess(id, time))
+			.map(id -> FhirEvent.asSuccess(id, time,expiringDate))
 			.collect(Collectors.toList());
 		// Insert
 		try {
