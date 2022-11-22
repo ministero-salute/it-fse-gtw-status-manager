@@ -29,6 +29,24 @@ public class KafkaTopicCFG {
 	 */
 	@Value("${kafka.statusmanager.topic}")
 	private String statusManagerTopic;
+	
+	/**
+	 * Topic.
+	 */
+	@Value("${kafka.statusmanager.eds.topic}")
+	private String statusManagerEdsTopic;
+	
+	/**
+	 * Topic.
+	 */
+	@Value("${kafka.statusmanager.deadletter.topic}")
+	private String statusManagerTopicDlt;
+	
+	/**
+	 * Topic.
+	 */
+	@Value("${kafka.statusmanager.eds.deadletter.topic}")
+	private String statusManagerEdsTopicDlt;
 
 	@PostConstruct
 	public void afterInit() {
