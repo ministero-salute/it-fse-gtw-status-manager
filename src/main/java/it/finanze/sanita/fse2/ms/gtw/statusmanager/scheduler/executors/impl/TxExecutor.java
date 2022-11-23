@@ -3,7 +3,6 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.executors.impl;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IConfigClient;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IProcessorClient;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.DeleteTxResDTO;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.GetTxResDTO;
@@ -102,14 +101,15 @@ public class TxExecutor extends LExecutor {
         try {
         	//Expiring date
         	Date exp = DateUtility.addDay(new Date(), configSRV.getExpirationDate());
+            Date time = Date.from(timestamp.toInstant());
             // Save request and process
-            this.processed = transaction.saveEventsFhir(changeset.getWif(), timestamp ,exp);
+            this.processed = transaction.saveEventsFhir(changeset.getWif(), time ,exp);
             // Iterate until data is exhausted given a previous request
             while (changeset.getLinks().getNext() != null) {
                 // Next request
                 changeset = processor.getTransactions(changeset.getLinks().getNext());
                 // Save transaction
-                this.processed += transaction.saveEventsFhir(changeset.getWif(), timestamp, exp);
+                this.processed += transaction.saveEventsFhir(changeset.getWif(), time, exp);
             }
             // Flag it
             res = OK;

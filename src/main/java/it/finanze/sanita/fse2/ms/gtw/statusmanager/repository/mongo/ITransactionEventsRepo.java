@@ -6,7 +6,6 @@ package it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.OperationException;
 
 import java.io.Serializable;
-import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -17,5 +16,5 @@ public interface ITransactionEventsRepo extends Serializable {
   
 	void saveEvent(String json, String workflowInstanceId);
 
-	int saveEventsFhir(List<String> wif, OffsetDateTime timestamp, Date expiringDate)throws OperationException;
+	int saveEventsFhir(List<String> wif, Date timestamp, Date expiration)throws OperationException;
 }
