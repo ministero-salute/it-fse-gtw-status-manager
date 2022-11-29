@@ -16,14 +16,17 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IConfigSRV;
 @Service
 public class ConfigSRV implements IConfigSRV {
 
-	private final static Long DELTA_MS = 300000L;
+	private static final Long DELTA_MS = 300000L;
 	
 	@Autowired
 	private IConfigClient configClient;
 
 	private Integer expirationDate;
+	
 	private Long lastUpdate;
-
+	
+	private final Object lockObj = new Object();
+	
 	@PostConstruct
 	public void postConstruct() {
 		refreshExpirationDate();
@@ -38,7 +41,7 @@ public class ConfigSRV implements IConfigSRV {
 	public Integer getExpirationDate() {
 		Long passedTime = new Date().getTime() - lastUpdate;
 		if (passedTime>=DELTA_MS) {
-			synchronized(lastUpdate) {
+			synchronized(lockObj) {
 				refreshExpirationDate();
 				lastUpdate = new Date().getTime();
 			}
