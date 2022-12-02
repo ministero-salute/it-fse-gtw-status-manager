@@ -5,9 +5,10 @@ package it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl;
 
 import java.util.Date;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IConfigClient;
@@ -27,8 +28,9 @@ public class ConfigSRV implements IConfigSRV {
 	
 	private final Object lockObj = new Object();
 	
-	@PostConstruct
-	public void postConstruct() {
+	@Async
+	@EventListener(ApplicationStartedEvent.class)
+	void initialize() {
 		refreshExpirationDate();
 		lastUpdate = new Date().getTime();
 	}
