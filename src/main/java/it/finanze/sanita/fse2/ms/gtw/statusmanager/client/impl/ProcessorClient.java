@@ -21,7 +21,7 @@ import static org.springframework.http.HttpMethod.DELETE;
 @Component
 public class ProcessorClient implements IProcessorClient {
 
-    public static final int CHUNK_LIMIT = 5;
+    public static final int CHUNK_LIMIT = 10000;
 
     @Autowired
     private RestTemplate client;
