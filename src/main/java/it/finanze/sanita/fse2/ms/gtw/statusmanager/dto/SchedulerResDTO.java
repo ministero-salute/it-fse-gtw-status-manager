@@ -13,11 +13,6 @@ import lombok.Setter;
 @Setter
 public class SchedulerResDTO extends ResponseDTO{
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4246436856361207760L;
-	
 	Map<String,Integer> output;
 	
 	public SchedulerResDTO() {

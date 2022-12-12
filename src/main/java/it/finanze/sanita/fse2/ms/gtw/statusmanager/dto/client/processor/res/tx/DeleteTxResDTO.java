@@ -13,6 +13,7 @@ import java.util.Date;
 public class DeleteTxResDTO {
 
     private String traceID;
+    
     private String spanID;
 
     private Date timestamp;

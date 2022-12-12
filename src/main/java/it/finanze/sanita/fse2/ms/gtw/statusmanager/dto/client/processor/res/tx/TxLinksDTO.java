@@ -9,6 +9,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TxLinksDTO {
+	
     private String prev;
+    
     private String next;
 }

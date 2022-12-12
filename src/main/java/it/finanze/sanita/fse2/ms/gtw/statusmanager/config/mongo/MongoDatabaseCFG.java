@@ -3,9 +3,6 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.config.mongo;
 
-import net.javacrumbs.shedlock.core.LockProvider;
-import net.javacrumbs.shedlock.provider.mongo.MongoLockProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,35 +14,24 @@ import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
+import net.javacrumbs.shedlock.core.LockProvider;
+import net.javacrumbs.shedlock.provider.mongo.MongoLockProvider;
 
 /**
- * 
- *
  *	Configuration for MongoDB.
  */
 @Configuration
-@EnableMongoRepositories(basePackages = Constants.ComponentScan.CONFIG_MONGO)
 public class MongoDatabaseCFG {
 
-	@Autowired
-	private MongoPropertiesCFG mongoPropertiesCFG;
-
-    @Autowired
-    private ApplicationContext appContext;
-
     @Bean
-    public MongoDatabaseFactory mongoDatabaseFactory(){
+    public MongoDatabaseFactory mongoDatabaseFactory(final MongoPropertiesCFG mongoPropertiesCFG){
         return new SimpleMongoClientDatabaseFactory(mongoPropertiesCFG.getUri());
     }
 
     @Bean
     @Primary
-    public MongoTemplate mongoTemplate() {
-        final MongoDatabaseFactory factory = mongoDatabaseFactory();
-
+    public MongoTemplate mongoTemplate(final ApplicationContext appContext,final MongoDatabaseFactory factory) {
         final MongoMappingContext mongoMappingContext = new MongoMappingContext();
         mongoMappingContext.setApplicationContext(appContext);
         MappingMongoConverter converter = new MappingMongoConverter(new DefaultDbRefResolver(factory), mongoMappingContext);

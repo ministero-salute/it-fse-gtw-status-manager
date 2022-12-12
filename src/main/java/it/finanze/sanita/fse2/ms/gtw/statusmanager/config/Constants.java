@@ -4,27 +4,10 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.config;
 
 /**
- * 
- *
  * Constants application.
  */
 public final class Constants {
 
-	/**
-	 *	Path scan.
-	 */
-	public static final class ComponentScan {
-		
-		/**
-		 * Configuration mongo path.
-		 */
-		public static final String CONFIG_MONGO = "it.finanze.sanita.fse2.ms.gtw.statusmanager.mongo";
-		
-		private ComponentScan() {
-			//This method is intentionally left blank.
-		}
-
-	}
 	
 	public static final class Collections {
 
@@ -43,7 +26,10 @@ public final class Constants {
 		public static final String TEST = "test";
 
 		public static final String TEST_PREFIX = "test_";
+		
+		public static final String DEV = "dev";
 
+		
 		/** 
 		 * Constructor.
 		 */

@@ -13,13 +13,9 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.TxScheduler;
 @RestController
 public class SchedulerActionCTL extends AbstractCTL implements ISchedulerActionCTL{
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4129852308258783500L;
 	
 	@Autowired
-	private transient TxScheduler txScheduler;
+	private TxScheduler txScheduler;
 	
 	@Override
 	public void runSchedulerAction() {

@@ -3,7 +3,6 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.config.kafka;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -12,18 +11,12 @@ import org.springframework.stereotype.Component;
 import lombok.Data;
 
 /**
- *
  *	Kafka consumer properties configuration.
  */
 @Data
 @Component
-public class KafkaConsumerPropertiesCFG implements Serializable {
+public class KafkaConsumerPropertiesCFG {
   
-	/**
-	 * Serial version uid.
-	 */
-	private static final long serialVersionUID = -628383826890016116L;
-
 	/**
 	 * Client id.
 	 */

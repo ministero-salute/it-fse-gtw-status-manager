@@ -31,12 +31,7 @@ import static it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants.Logs.
 @Repository
 public class TransactionEventsRepo implements ITransactionEventsRepo {
 
-	/**
-	 * Serial version uid.
-	 */
-	private static final long serialVersionUID = -4017623557412046071L;
-
-	private static final String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+	private static final String PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 	
 	@Autowired
 	private MongoTemplate mongo;
@@ -48,7 +43,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	public void saveEvent(String workflowInstanceId, String json) {
 		try {
 			Document doc = Document.parse(json);
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(PATTERN);
 			simpleDateFormat.setTimeZone(TimeZone.getDefault());
 			Date eventDate = simpleDateFormat.parse(doc.getString("eventDate"));
 			doc.put("eventDate", eventDate);

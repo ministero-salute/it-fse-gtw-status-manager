@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import lombok.Data;
 
 /**
- *
  *	Kafka producer properties configuration.
  */
 @Data

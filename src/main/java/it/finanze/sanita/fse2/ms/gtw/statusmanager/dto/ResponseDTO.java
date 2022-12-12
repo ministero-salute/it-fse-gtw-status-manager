@@ -13,11 +13,6 @@ import lombok.Setter;
 public class ResponseDTO extends AbstractDTO {
 
 	/**
-	 * Serial version uid.
-	 */
-	private static final long serialVersionUID = 3473312771318529328L;
-
-	/**
 	 * Trace id log.
 	 */
 	@Size(min = 0, max = 100)

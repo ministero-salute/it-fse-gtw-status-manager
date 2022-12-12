@@ -14,7 +14,6 @@ import lombok.Data;
 import javax.annotation.PostConstruct;
 
 /**
- *
  *	Kafka topic configuration.
  */
 @Data
@@ -51,7 +50,11 @@ public class KafkaTopicCFG {
 	@PostConstruct
 	public void afterInit() {
 		if (profileUtility.isTestProfile()) {
-			this.statusManagerTopic = Constants.Profile.TEST_PREFIX + this.statusManagerTopic;
+			statusManagerTopic = Constants.Profile.TEST_PREFIX + statusManagerTopic;
+			statusManagerEdsTopic = Constants.Profile.TEST_PREFIX + statusManagerEdsTopic;
+			statusManagerTopicDlt = Constants.Profile.TEST_PREFIX + statusManagerTopicDlt;
+			statusManagerEdsTopicDlt = Constants.Profile.TEST_PREFIX + statusManagerEdsTopicDlt;
+			
 		}
 	}
 }

@@ -4,9 +4,7 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions;
 
 /**
- * 
- *         Generic business exception.
- *
+ * Generic business exception.
  */
 public class BusinessException extends RuntimeException {
 

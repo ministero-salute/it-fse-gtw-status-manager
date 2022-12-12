@@ -3,24 +3,15 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.controller.impl;
 
-import java.io.Serializable;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import brave.Tracer;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.LogTraceInfoDTO;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
-public abstract class AbstractCTL implements Serializable {
-
-	/**
-	 * Serial version uid.
-	 */
-	private static final long serialVersionUID = -3077780100650268134L;
+public abstract class AbstractCTL {
 	
 	@Autowired
-	private transient Tracer tracer;
+	private Tracer tracer;
  
 
 	protected LogTraceInfoDTO getLogTraceInfo() {

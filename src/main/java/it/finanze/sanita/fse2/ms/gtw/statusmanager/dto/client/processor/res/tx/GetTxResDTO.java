@@ -14,6 +14,7 @@ import java.util.List;
 public class GetTxResDTO {
 
     private String traceID;
+    
     private String spanID;
 
     private Date timestamp;
