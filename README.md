@@ -35,29 +35,8 @@
 
 ---
 
-_it-fse-gtw-status-manager_ duty description
-- duty description item
-- duty description item
-- duty description item with ✨Magic ✨
+Il microservizio in oggetto ha la responsabilità di accogliere e salvare i log di stato provenienti dai microservizi del Gateway al fine di permettere ad it-fse-gtw-status-check l'esposizione verso il Consumer.
 
-## Features
-- Features1
-- Features2
-- Features3
-- ....
-- Featuresn
-
-#### Feature1
-TODO --> Feature1 description
-
-#### Feature2
-TODO --> Feature2 description
-
-#### Feature3
-TODO --> Feature3 description
-
-#### Featuren
-TODO --> Featuren description
 
 ## Repos
 - [ministero-salute-git-repo-url] - Repos Git Ministero della Salute
