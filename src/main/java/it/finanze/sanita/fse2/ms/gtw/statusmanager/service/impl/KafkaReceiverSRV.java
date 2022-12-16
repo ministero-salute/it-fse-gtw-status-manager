@@ -35,21 +35,21 @@ public class KafkaReceiverSRV implements IKafkaReceiverSRV {
 			throw new BusinessException(e);
 		}
 	}
-	
-	@Override
-	@KafkaListener(topics = "#{'${kafka.statusmanager.eds.topic}'}",  clientIdPrefix = "#{'${kafka.client-eds-id}'}", containerFactory = "kafkaListenerDeadLetterContainerFactoryEds", autoStartup = "${event.topic.auto.start}", groupId = "#{'${kafka.consumer.group-id-eds}'}")
-	public void listenerEds(final ConsumerRecord<String, String> cr, final MessageHeaders messageHeaders) {
-		log.info("EDS LISTENER - Consuming transaction event - Message received with key {}", cr.key());
-		try {
-			String workflowInstanceId = cr.key();
-			String message = cr.value();
-			srvListener(workflowInstanceId, message);
-			log.info("END - Listener eds");
-		} catch (Exception e) {
-			deadLetterHelper(e);
-			throw new BusinessException(e);
-		}
-	}
+//	
+//	@Override
+//	@KafkaListener(topics = "#{'${kafka.statusmanager.eds.topic}'}",  clientIdPrefix = "#{'${kafka.client-eds-id}'}", containerFactory = "kafkaListenerDeadLetterContainerFactoryEds", autoStartup = "${event.topic.auto.start}", groupId = "#{'${kafka.consumer.group-id-eds}'}")
+//	public void listenerEds(final ConsumerRecord<String, String> cr, final MessageHeaders messageHeaders) {
+//		log.info("EDS LISTENER - Consuming transaction event - Message received with key {}", cr.key());
+//		try {
+//			String workflowInstanceId = cr.key();
+//			String message = cr.value();
+//			srvListener(workflowInstanceId, message);
+//			log.info("END - Listener eds");
+//		} catch (Exception e) {
+//			deadLetterHelper(e);
+//			throw new BusinessException(e);
+//		}
+//	}
     
 	public void srvListener(final String workflowInstanceId, final String message) {
 		eventsSRV.saveEvent(workflowInstanceId, message);
