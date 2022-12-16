@@ -42,9 +42,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	@Override
 	public void saveEvent(String workflowInstanceId, String json) {
 		try {
-			log.info("START PARSE DOCUMENT");
 			Document doc = Document.parse(json);
-			log.info("END PARSE DOCUMENT");
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(PATTERN);
 			simpleDateFormat.setTimeZone(TimeZone.getDefault());
 			Date eventDate = simpleDateFormat.parse(doc.getString("eventDate"));
@@ -60,14 +58,9 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 				query.addCriteria(Criteria.where("traceId").is(doc.getString("traceId")).
 						and("eventType").is(eventType).and("eventStatus").is(eventStatus));
 			}
-			log.info("START EXPIRATION DATE");
 			Date expiringDate = DateUtility.addDay(new Date(), configSRV.getExpirationDate());
 			doc.put("expiring_date", expiringDate);
-			log.info("END EXPIRATION DATE");
-			
-			log.info("START UPSERT");
 			mongo.upsert(query, Update.fromDocument(doc, "_id"), FhirEvent.class);
-			log.info("END UPSERT");
 		} catch(Exception ex){
 			log.error("Error while save event : " , ex);
 			throw new BusinessException("Error while save event : " , ex);
