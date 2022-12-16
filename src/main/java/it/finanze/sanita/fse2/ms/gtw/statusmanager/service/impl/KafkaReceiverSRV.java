@@ -31,6 +31,7 @@ public class KafkaReceiverSRV implements IKafkaReceiverSRV {
 			srvListener(workflowInstanceId, message);
 			log.info("END - Listener gtw");
 		} catch (Exception e) {
+			log.error("Sono andato in eccezione");
 			deadLetterHelper(e);
 			throw new BusinessException(e);
 		}
