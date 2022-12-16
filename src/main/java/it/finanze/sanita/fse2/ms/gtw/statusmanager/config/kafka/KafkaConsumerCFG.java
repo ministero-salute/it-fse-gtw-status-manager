@@ -48,21 +48,34 @@ public class KafkaConsumerCFG {
 	public Map<String, Object> consumerConfigs() {
 		Map<String, Object> props = new HashMap<>();
 		
+		log.info("CLIENT ID:" + kafkaConsumerPropCFG.getClientId());
 		props.put(ConsumerConfig.CLIENT_ID_CONFIG, kafkaConsumerPropCFG.getClientId());
+		log.info("BOOTSTRAP SERVER:" + kafkaConsumerPropCFG.getConsumerBootstrapServers());
 		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConsumerPropCFG.getConsumerBootstrapServers());
+		log.info("CONSUMER GROUP ID:" + kafkaConsumerPropCFG.getConsumerGroupId());
 		props.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaConsumerPropCFG.getConsumerGroupId());
+		log.info("KEY SERIALIZER:" + kafkaConsumerPropCFG.getConsumerKeyDeserializer());
 		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, kafkaConsumerPropCFG.getConsumerKeyDeserializer());
+		log.info("VALUE SERIALIZER:" + kafkaConsumerPropCFG.getConsumerValueDeserializer());
 		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, kafkaConsumerPropCFG.getConsumerValueDeserializer());
+		log.info("ISOLATION:" + kafkaConsumerPropCFG.getIsolationLevel());
 		props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, kafkaConsumerPropCFG.getIsolationLevel());
+		log.info("AUTOCOMMIT:" + kafkaConsumerPropCFG.getAutoCommit());
 		props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, kafkaConsumerPropCFG.getAutoCommit());
+		log.info("AUTO OFFSET:" + kafkaConsumerPropCFG.getAutoOffsetReset());
 		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, kafkaConsumerPropCFG.getAutoOffsetReset());
 		
 		//SSL
 		if (kafkaConsumerPropCFG.isEnableSsl()) { 
+			log.info("SECURITY PROTOCOL:" + kafkaConsumerPropCFG.getProtocol());
 			props.put("security.protocol", kafkaConsumerPropCFG.getProtocol());
+			log.info("MECHANISM:" + kafkaConsumerPropCFG.getMechanism());
 			props.put("sasl.mechanism", kafkaConsumerPropCFG.getMechanism());
+			log.info("JAAS:" + kafkaConsumerPropCFG.getConfigJaas());
 			props.put("sasl.jaas.config", kafkaConsumerPropCFG.getConfigJaas());
+			log.info("TRUSTORE:" + kafkaConsumerPropCFG.getTrustoreLocation());
 			props.put("ssl.truststore.location", kafkaConsumerPropCFG.getTrustoreLocation());
+			log.info("TRUSTORE:" + kafkaConsumerPropCFG.getTrustoreLocation());
 			props.put("ssl.truststore.password", String.valueOf(kafkaConsumerPropCFG.getTrustorePassword()));
 		}
 		return props;

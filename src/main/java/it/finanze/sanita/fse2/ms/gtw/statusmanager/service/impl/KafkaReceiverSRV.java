@@ -24,7 +24,7 @@ public class KafkaReceiverSRV implements IKafkaReceiverSRV {
 	@Override
 	@KafkaListener(topics = "#{'${kafka.statusmanager.topic}'}",  clientIdPrefix = "#{'${kafka.client-id}'}", containerFactory = "kafkaListenerDeadLetterContainerFactory", autoStartup = "${event.topic.auto.start}", groupId = "#{'${kafka.consumer.group-id}'}")
 	public void listenerGtw(final ConsumerRecord<String, String> cr, final MessageHeaders messageHeaders) {
-		log.debug("Consuming transaction event - Message received with key {}", cr.key());
+		log.info("Consuming transaction event - Message received with key {}", cr.key());
 		try {
 			String workflowInstanceId = cr.key();
 			String message = cr.value();
@@ -36,9 +36,9 @@ public class KafkaReceiverSRV implements IKafkaReceiverSRV {
 	}
 	
 	@Override
-	@KafkaListener(topics = "#{'${kafka.statusmanager.eds.topic}'}",  clientIdPrefix = "#{'${kafka.client-eds-id}'}", containerFactory = "kafkaListenerDeadLetterContainerFactoryEds", autoStartup = "${event.topic.auto.start}", groupId = "#{'${kafka.consumer.group-id}'}")
+	@KafkaListener(topics = "#{'${kafka.statusmanager.eds.topic}'}",  clientIdPrefix = "#{'${kafka.client-eds-id}'}", containerFactory = "kafkaListenerDeadLetterContainerFactoryEds", autoStartup = "${event.topic.auto.start}", groupId = "#{'${kafka.consumer.group-id-eds}'}")
 	public void listenerEds(final ConsumerRecord<String, String> cr, final MessageHeaders messageHeaders) {
-		log.debug("Consuming transaction event - Message received with key {}", cr.key());
+		log.info("Consuming transaction event - Message received with key {}", cr.key());
 		try {
 			String workflowInstanceId = cr.key();
 			String message = cr.value();
