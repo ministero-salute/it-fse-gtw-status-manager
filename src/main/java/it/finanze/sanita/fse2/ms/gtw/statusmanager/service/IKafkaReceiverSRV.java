@@ -15,6 +15,6 @@ public interface IKafkaReceiverSRV {
 	 */
 	void listenerGtw(ConsumerRecord<String, String> cr, MessageHeaders messageHeaders);
 	
-	void listenerEds(ConsumerRecord<String, String> cr, MessageHeaders messageHeaders);
+//	void listenerEds(ConsumerRecord<String, String> cr, MessageHeaders messageHeaders);
 
 }
