@@ -4,6 +4,7 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.impl;
 
 import com.mongodb.MongoException;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.OperationException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity.FhirEvent;
@@ -45,22 +46,22 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 			Document doc = Document.parse(json);
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(PATTERN);
 			simpleDateFormat.setTimeZone(TimeZone.getDefault());
-			Date eventDate = simpleDateFormat.parse(doc.getString("eventDate"));
-			doc.put("eventDate", eventDate);
-			doc.put("workflow_instance_id", workflowInstanceId);
-			String eventType = doc.getString("eventType");
-			String eventStatus = doc.getString("eventStatus");
+			Date eventDate = simpleDateFormat.parse(doc.getString(Constants.Fields.EVENT_DATE));
+			doc.put(Constants.Fields.EVENT_DATE, eventDate);
+			doc.put(Constants.Fields.WORKFLOW_INSTANCE_ID, workflowInstanceId);
+			String eventType = doc.getString(Constants.Fields.EVENT_TYPE);
+			String eventStatus = doc.getString(Constants.Fields.EVENT_STATUS);
 			Query query = new Query();
 			if(!"UNKNOWN_WORKFLOW_ID".equals(workflowInstanceId)) {
-				query.addCriteria(Criteria.where("workflow_instance_id").is(workflowInstanceId).
-						and("eventType").is(eventType).and("eventStatus").is(eventStatus));
+				query.addCriteria(Criteria.where(Constants.Fields.WORKFLOW_INSTANCE_ID).is(workflowInstanceId).
+						and(Constants.Fields.EVENT_TYPE).is(eventType).and(Constants.Fields.EVENT_STATUS).is(eventStatus));
 			} else {
-				query.addCriteria(Criteria.where("traceId").is(doc.getString("traceId")).
-						and("eventType").is(eventType).and("eventStatus").is(eventStatus));
+				query.addCriteria(Criteria.where(Constants.Fields.TRACE_ID).is(doc.getString(Constants.Fields.TRACE_ID)).
+						and(Constants.Fields.EVENT_TYPE).is(eventType).and(Constants.Fields.EVENT_STATUS).is(eventStatus));
 			}
 			
 			Date expiringDate = DateUtility.addDay(new Date(), configSRV.getExpirationDate());
-			doc.put("expiring_date", expiringDate);
+			doc.put(Constants.Fields.EXPIRING_DATE, expiringDate);
 			mongo.upsert(query, Update.fromDocument(doc, "_id"), FhirEvent.class);
 			
 		} catch(Exception ex){

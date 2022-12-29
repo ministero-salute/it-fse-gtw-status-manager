@@ -29,7 +29,7 @@ public class ConfigClient implements IConfigClient {
     	if(isReachable()) {
     		String endpoint = msUrlCFG.getConfigHost() + "/v1/config-items/props?type=STATUS_MANAGER&props=expiring_date_day";
     		ResponseEntity<String> response = restTemplate.getForEntity(endpoint,String.class);
-    		if(response.getBody()!=null) {
+    		if(response.getBody() != null) {
     			output = Integer.parseInt(response.getBody());
     		}
     	}

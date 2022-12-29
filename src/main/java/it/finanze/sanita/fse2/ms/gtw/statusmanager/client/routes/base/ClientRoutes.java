@@ -5,6 +5,8 @@ package it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base;
 
 public final class ClientRoutes {
 
+    private ClientRoutes() {}
+
     public static final class Processor {
 
         private Processor() {}
@@ -24,6 +26,7 @@ public final class ClientRoutes {
     public static final class Config {
 
         private Config() {}
-        public static final String STATUS_PATH = "/status";    }
+        public static final String STATUS_PATH = "/status";
+    }
 
 }

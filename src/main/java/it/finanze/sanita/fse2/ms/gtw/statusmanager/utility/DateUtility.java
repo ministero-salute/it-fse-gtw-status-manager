@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DateUtility {
+
+	private DateUtility() {}
 	
     public static OffsetDateTime getCurrentTime() {
         return OffsetDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MILLIS);

@@ -90,7 +90,7 @@ public class KafkaConsumerCFG {
 		ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
 		factory.setConsumerFactory(consumerFactory());
 		
-		DeadLetterPublishingRecoverer dlpr = new DeadLetterPublishingRecoverer(deadLetterKafkaTemplate, (consumerRecord, ex) -> new TopicPartition(topicCFG.getStatusManagerTopicDlt(), -1));;
+		DeadLetterPublishingRecoverer dlpr = new DeadLetterPublishingRecoverer(deadLetterKafkaTemplate, (consumerRecord, ex) -> new TopicPartition(topicCFG.getStatusManagerTopicDlt(), -1));
 		// Set classificazione errori da gestire per la deadLetter.
 		DefaultErrorHandler sceh = new DefaultErrorHandler(dlpr, new FixedBackOff(FixedBackOff.DEFAULT_INTERVAL, FixedBackOff.UNLIMITED_ATTEMPTS));
 		
@@ -108,7 +108,7 @@ public class KafkaConsumerCFG {
 		ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
 		factory.setConsumerFactory(consumerFactory());
 		
-		DeadLetterPublishingRecoverer dlpr = new DeadLetterPublishingRecoverer(deadLetterKafkaTemplate, (consumerRecord, ex) -> new TopicPartition(topicCFG.getStatusManagerEdsTopicDlt(), -1));;
+		DeadLetterPublishingRecoverer dlpr = new DeadLetterPublishingRecoverer(deadLetterKafkaTemplate, (consumerRecord, ex) -> new TopicPartition(topicCFG.getStatusManagerEdsTopicDlt(), -1));
 		// Set classificazione errori da gestire per la deadLetter.
 		DefaultErrorHandler sceh = new DefaultErrorHandler(dlpr, new FixedBackOff(FixedBackOff.DEFAULT_INTERVAL, FixedBackOff.UNLIMITED_ATTEMPTS));
 		

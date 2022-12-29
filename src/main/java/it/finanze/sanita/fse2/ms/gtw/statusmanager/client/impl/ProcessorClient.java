@@ -5,6 +5,7 @@ package it.finanze.sanita.fse2.ms.gtw.statusmanager.client.impl;
 
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IProcessorClient;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.ProcessorClientRoutes;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.DeleteTxResDTO;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.GetTxResDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.yaml.snakeyaml.scanner.Constant;
 
 import java.time.OffsetDateTime;
 
@@ -33,7 +35,7 @@ public class ProcessorClient implements IProcessorClient {
     public GetTxResDTO getTransactions(OffsetDateTime timestamp, int page, int limit) {
 
         String endpoint = routes.getTransactions(page, limit, timestamp);
-        log.debug("{} - Executing request: {}", routes.identifier(), endpoint);
+        log.debug(Constants.Logs.EXECUTE_REQUEST, routes.identifier(), endpoint);
 
         // Execute request
         ResponseEntity<GetTxResDTO> response = client.getForEntity(
@@ -46,7 +48,7 @@ public class ProcessorClient implements IProcessorClient {
 
     @Override
     public GetTxResDTO getTransactions(String url) {
-        log.debug("{} - Executing request: {}", routes.identifier(), url);
+        log.debug(Constants.Logs.EXECUTE_REQUEST, routes.identifier(), url);
 
         // Execute request
         ResponseEntity<GetTxResDTO> response = client.getForEntity(
@@ -61,7 +63,7 @@ public class ProcessorClient implements IProcessorClient {
     public DeleteTxResDTO deleteTransactions(OffsetDateTime timestamp) {
 
         String endpoint = routes.deleteTransactions(timestamp);
-        log.debug("{} - Executing request: {}", routes.identifier(), endpoint);
+        log.debug(Constants.Logs.EXECUTE_REQUEST, routes.identifier(), endpoint);
 
         // Execute request
         ResponseEntity<DeleteTxResDTO> response = client.exchange(

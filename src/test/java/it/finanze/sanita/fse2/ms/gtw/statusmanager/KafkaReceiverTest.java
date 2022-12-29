@@ -22,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Description;
+import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -33,6 +34,7 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.ITransactionEventsSRV
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(Constants.Profile.TEST)
+@EmbeddedKafka
 class KafkaReceiverTest {
 
     @Autowired

@@ -24,7 +24,7 @@ public class TransactionEventsSRV extends AbstractService implements ITransactio
 	private static final long serialVersionUID = 8384735139163560923L;
 	
 	@Autowired
-    private ITransactionEventsRepo transactionEventsRepo;
+    private transient ITransactionEventsRepo transactionEventsRepo;
 
 	@Override
     public void saveEvent(final String workflowInstanceId , final String json) {

@@ -99,7 +99,7 @@ public class KafkaConsumerPropertiesCFG {
 	 * Truststore password.
 	 */
 	@Value("${kafka.properties.ssl.truststore.password}")
-	private transient char[] trustorePassword;
+	private char[] trustorePassword;
 	
 	/**
 	 * Flag enable ssl.

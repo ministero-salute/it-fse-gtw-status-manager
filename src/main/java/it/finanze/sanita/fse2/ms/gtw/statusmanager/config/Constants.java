@@ -17,6 +17,17 @@ public final class Constants {
 
 		}
 	}
+
+	public static final class Fields {
+		public static final String EVENT_STATUS = "eventStatus";
+		public static final String TRACE_ID = "traceId";
+		public static final String WORKFLOW_INSTANCE_ID = "workflow_instance_id";
+		public static final String EVENT_DATE = "eventDate";
+		public static final String EXPIRING_DATE = "expiring_date";
+
+		private Fields() {}
+		public static final String EVENT_TYPE = "eventType";
+	}
  
 	public static final class Profile {
 
@@ -42,8 +53,9 @@ public final class Constants {
 	public static final class Logs {
 
 		public static final String ERR_REP_FHIR_EVENTS = "Unable to insert FHIR events";
+        public static final String EXECUTE_REQUEST = "{} - Executing request: {}";
 
-		private Logs() {}
+        private Logs() {}
 	}
   
 	/**
