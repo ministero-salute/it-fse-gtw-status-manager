@@ -29,7 +29,9 @@ public class TransactionEventsSRV extends AbstractService implements ITransactio
 	@Override
     public void saveEvent(final String workflowInstanceId , final String json) {
     	try {
+    		log.info("START - Save event");
     		transactionEventsRepo.saveEvent(workflowInstanceId,json);
+    		log.info("END - Save event");
     	} catch(Exception ex) {
     		log.error("Errore while save event : " , ex);
     		throw new BusinessException(ex);

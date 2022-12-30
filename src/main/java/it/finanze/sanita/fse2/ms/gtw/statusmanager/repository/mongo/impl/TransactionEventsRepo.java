@@ -59,11 +59,9 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 				query.addCriteria(Criteria.where(Constants.Fields.TRACE_ID).is(doc.getString(Constants.Fields.TRACE_ID)).
 						and(Constants.Fields.EVENT_TYPE).is(eventType).and(Constants.Fields.EVENT_STATUS).is(eventStatus));
 			}
-			
 			Date expiringDate = DateUtility.addDay(new Date(), configSRV.getExpirationDate());
 			doc.put(Constants.Fields.EXPIRING_DATE, expiringDate);
 			mongo.upsert(query, Update.fromDocument(doc, "_id"), FhirEvent.class);
-			
 		} catch(Exception ex){
 			log.error("Error while save event : " , ex);
 			throw new BusinessException("Error while save event : " , ex);
