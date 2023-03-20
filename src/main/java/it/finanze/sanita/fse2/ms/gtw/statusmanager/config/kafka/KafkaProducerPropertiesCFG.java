@@ -92,11 +92,5 @@ public class KafkaProducerPropertiesCFG {
 	 */
 	@Value("${kafka.properties.ssl.truststore.password}")
 	private char[] trustorePassword;
-	
-	/**
-	 * Flag ssl.
-	 */
-	@Value("${kafka.enablessl}")
-	private boolean enableSsl;
-
+	 
 }

@@ -3,7 +3,6 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.config.kafka;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +15,7 @@ import lombok.Data;
  */
 @Data
 @Component
-public class KafkaConsumerPropertiesCFG implements Serializable {
+public class KafkaConsumerPropertiesCFG {
   
 	/**
 	 * Client id.
@@ -102,10 +101,4 @@ public class KafkaConsumerPropertiesCFG implements Serializable {
 	@Value("${kafka.properties.ssl.truststore.password}")
 	private transient char[] trustorePassword;
 	
-	/**
-	 * Flag enable ssl.
-	 */
-	@Value("${kafka.enablessl}")
-	private boolean enableSsl;
-	 
 }

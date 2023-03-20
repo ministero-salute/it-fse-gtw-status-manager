@@ -15,6 +15,8 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.StringUtility;
+
 @Configuration
 public class KafkaProducerCFG {
 
@@ -40,12 +42,23 @@ public class KafkaProducerCFG {
 		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, kafkaProducerPropCFG.getProducerKeySerializer());
 		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, kafkaProducerPropCFG.getProducerValueSerializer());
 		
-		//SSL
-		if (kafkaProducerPropCFG.isEnableSsl()) { 
+		if(!StringUtility.isNullOrEmpty(kafkaProducerPropCFG.getProtocol())) {
 			props.put("security.protocol", kafkaProducerPropCFG.getProtocol());
+		}
+		
+		if(!StringUtility.isNullOrEmpty(kafkaProducerPropCFG.getMechanism())) {
 			props.put("sasl.mechanism", kafkaProducerPropCFG.getMechanism());
+		}
+		
+		if(!StringUtility.isNullOrEmpty(kafkaProducerPropCFG.getConfigJaas())) {
 			props.put("sasl.jaas.config", kafkaProducerPropCFG.getConfigJaas());
+		}
+		
+		if(!StringUtility.isNullOrEmpty(kafkaProducerPropCFG.getTrustoreLocation())) {
 			props.put("ssl.truststore.location", kafkaProducerPropCFG.getTrustoreLocation());
+		}
+		
+		if(!StringUtility.isNullOrEmpty(String.valueOf(kafkaProducerPropCFG.getTrustorePassword()))) {
 			props.put("ssl.truststore.password", String.valueOf(kafkaProducerPropCFG.getTrustorePassword()));
 		}
 		
