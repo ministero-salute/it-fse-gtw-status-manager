@@ -3,14 +3,13 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity;
 
-import java.util.Date;
-
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.util.Date;
 
 @Document(collection = "#{@transactionDataBean}")
 @Data
@@ -26,7 +25,6 @@ public class FhirEvent {
     public static final String FIELD_EVENT_TYPE = "eventType";
     public static final String FIELD_EVENT_STATUS = "eventStatus";
     public static final String FIELD_EXPIRING_DATE = "expiring_date";
-    public static final String FIELD_EXTRA = "extra";
     @Id
     private String id;
     @Field(name = FIELD_WIF)
@@ -39,8 +37,6 @@ public class FhirEvent {
     private String status;
     @Field(name = FIELD_EXPIRING_DATE)
     private Date expiringDate;
-    @Field(name = FIELD_EXTRA)
-    private String extra;
     
 
     public static FhirEvent asSuccess(String wif, Date date, Date expiringDate) {
