@@ -51,12 +51,6 @@
 			<artifactId>httpclient</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.yaml</groupId>
-			<artifactId>snakeyaml</artifactId>
-			<version>1.31</version>
-		</dependency>
-
 		<!-- ACTUATOR -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -72,6 +66,12 @@
 			<groupId>com.atlassian.oai</groupId>
 			<artifactId>swagger-request-validator-core</artifactId>
 			<version>2.30.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.yaml</groupId>
+					<artifactId>snakeyaml</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- TEST -->
