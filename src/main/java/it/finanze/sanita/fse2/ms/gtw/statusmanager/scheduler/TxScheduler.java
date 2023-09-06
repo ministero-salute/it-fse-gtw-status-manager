@@ -15,6 +15,7 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.executors.impl.TxEx
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +25,7 @@ import static it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.executors.im
 
 @Slf4j
 @Component
+@ConditionalOnExpression("'${scheduler.tx-scheduler}'!='-'")
 public class TxScheduler {
 
     @Autowired
