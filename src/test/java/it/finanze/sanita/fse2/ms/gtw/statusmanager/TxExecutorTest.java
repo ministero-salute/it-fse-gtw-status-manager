@@ -11,15 +11,12 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IConfigClient;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IProcessorClient;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.DeleteTxResDTO;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.GetTxResDTO;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ActionRes;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity.FhirEvent;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.ITransactionEventsRepo;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.executors.impl.TxExecutor;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.http.HttpMethod.DELETE;
+
+import java.util.ArrayList;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,11 +32,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.springframework.http.HttpMethod.DELETE;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IConfigClient;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.DeleteTxResDTO;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.GetTxResDTO;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ActionRes;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity.FhirEvent;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.executors.impl.TxExecutor;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(Constants.Profile.TEST)
@@ -48,14 +47,8 @@ class TxExecutorTest {
     @Autowired
     private TxExecutor txExecutor;
 
-    @Autowired
-    private IProcessorClient processorClient;
-
     @MockBean
     private IConfigClient configClient;
-
-    @Autowired
-    private ITransactionEventsRepo transaction;
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -121,7 +114,6 @@ class TxExecutorTest {
     void executorFailureTestOnDelete() {
         GetTxResDTO first = TestUtility.createFirstTxLinksMock();
         GetTxResDTO last = TestUtility.createLastTxLinksMock();
-        DeleteTxResDTO deleted = TestUtility.createDeletedTransactionMock();
 
         Mockito.when(configClient.getExpirationDate()).thenReturn(5);
 

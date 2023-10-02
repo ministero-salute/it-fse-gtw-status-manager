@@ -12,7 +12,6 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
 import org.junit.jupiter.api.DisplayName;
