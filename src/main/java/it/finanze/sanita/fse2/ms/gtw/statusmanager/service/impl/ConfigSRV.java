@@ -11,51 +11,76 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl;
 
-import java.util.Date;
-
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IConfigClient;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IConfigSRV;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IConfigClient;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IConfigSRV;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base.ClientRoutes.Config.PROPS_NAME_EXP_DAYS;
+import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base.ClientRoutes.Config.PROPS_NAME_ISSUER_CF;
 
 @Service
 public class ConfigSRV implements IConfigSRV {
 
 	private static final Long DELTA_MS = 300000L;
-	
-	@Autowired
-	private IConfigClient configClient;
 
-	private Integer expirationDate;
+	private final Map<String, Pair<Long, Object>> props;
+
+	@Autowired
+	private IConfigClient client;
+
+	public ConfigSRV() {
+		this.props = new HashMap<>();
+	}
 	
-	private Long lastUpdate;
-	
-	private final Object lockObj = new Object();
-	
-	@Async
 	@EventListener(ApplicationStartedEvent.class)
 	void initialize() {
 		refreshExpirationDate();
-		lastUpdate = new Date().getTime();
+		refreshIsCfOnIssuerAllowed();
 	}
 
 	private void refreshExpirationDate() {
-		expirationDate = configClient.getExpirationDate();
+		int days = client.getExpirationDate();
+		props.put(PROPS_NAME_EXP_DAYS, Pair.of(new Date().getTime(), days));
+	}
+
+	private void refreshIsCfOnIssuerAllowed() {
+		boolean out = client.isCfOnIssuerAllowed();
+		props.put(PROPS_NAME_ISSUER_CF, Pair.of(new Date().getTime(), out));
 	}
 
 	@Override
 	public Integer getExpirationDate() {
-		Long passedTime = new Date().getTime() - lastUpdate;
-		if (passedTime>=DELTA_MS) {
-			synchronized(lockObj) {
+		Pair<Long, Object> pair = props.getOrDefault(
+			PROPS_NAME_EXP_DAYS,
+			Pair.of(0L, null)
+		);
+		if (new Date().getTime() - pair.getKey() >= DELTA_MS) {
+			synchronized(PROPS_NAME_EXP_DAYS) {
 				refreshExpirationDate();
-				lastUpdate = new Date().getTime();
 			}
 		}
-		return expirationDate;
+		return (Integer) props.get(PROPS_NAME_EXP_DAYS).getValue();
+	}
+
+	@Override
+	public Boolean isCfOnIssuerAllowed() {
+		Pair<Long, Object> pair = props.getOrDefault(
+			PROPS_NAME_ISSUER_CF,
+			Pair.of(0L, null)
+		);
+		if (new Date().getTime() - pair.getKey() >= DELTA_MS) {
+			synchronized(PROPS_NAME_ISSUER_CF) {
+				refreshIsCfOnIssuerAllowed();
+			}
+		}
+		return (Boolean) props.get(PROPS_NAME_ISSUER_CF).getValue();
 	}
 }
