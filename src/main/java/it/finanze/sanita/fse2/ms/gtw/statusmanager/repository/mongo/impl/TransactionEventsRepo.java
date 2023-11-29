@@ -12,7 +12,6 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.impl;
 
 import com.mongodb.MongoException;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.OperationException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity.FhirEvent;
@@ -34,7 +33,8 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
-import static it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants.Logs.ERR_REP_FHIR_EVENTS; 
+import static it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants.Fields.*;
+import static it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants.Logs.ERR_REP_FHIR_EVENTS;
 
 @Slf4j
 @Repository
@@ -54,21 +54,22 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 			Document doc = Document.parse(json);
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(PATTERN);
 			simpleDateFormat.setTimeZone(TimeZone.getDefault());
-			Date eventDate = simpleDateFormat.parse(doc.getString(Constants.Fields.EVENT_DATE));
-			doc.put(Constants.Fields.EVENT_DATE, eventDate);
-			doc.put(Constants.Fields.WORKFLOW_INSTANCE_ID, workflowInstanceId);
-			String eventType = doc.getString(Constants.Fields.EVENT_TYPE);
-			String eventStatus = doc.getString(Constants.Fields.EVENT_STATUS);
+			Date eventDate = simpleDateFormat.parse(doc.getString(EVENT_DATE));
+			doc.put(EVENT_DATE, eventDate);
+			doc.put(WORKFLOW_INSTANCE_ID, workflowInstanceId);
+			String eventType = doc.getString(EVENT_TYPE);
+			String eventStatus = doc.getString(EVENT_STATUS);
 			Query query = new Query();
 			if(!"UNKNOWN_WORKFLOW_ID".equals(workflowInstanceId)) {
-				query.addCriteria(Criteria.where(Constants.Fields.WORKFLOW_INSTANCE_ID).is(workflowInstanceId).
-						and(Constants.Fields.EVENT_TYPE).is(eventType).and(Constants.Fields.EVENT_STATUS).is(eventStatus));
+				query.addCriteria(Criteria.where(WORKFLOW_INSTANCE_ID).is(workflowInstanceId).
+						and(EVENT_TYPE).is(eventType).and(EVENT_STATUS).is(eventStatus));
 			} else {
-				query.addCriteria(Criteria.where(Constants.Fields.TRACE_ID).is(doc.getString(Constants.Fields.TRACE_ID)).
-						and(Constants.Fields.EVENT_TYPE).is(eventType).and(Constants.Fields.EVENT_STATUS).is(eventStatus));
+				query.addCriteria(Criteria.where(TRACE_ID).is(doc.getString(TRACE_ID)).
+						and(EVENT_TYPE).is(eventType).and(EVENT_STATUS).is(eventStatus));
 			}
 			Date expiringDate = DateUtility.addDay(new Date(), configSRV.getExpirationDate());
-			doc.put(Constants.Fields.EXPIRING_DATE, expiringDate);
+			doc.put(EXPIRING_DATE, expiringDate);
+			clearIssuerObject(doc);
 			mongo.upsert(query, Update.fromDocument(doc, "_id"), FhirEvent.class);
 		} catch(Exception ex){
 			log.error("Error while save event : " , ex);
@@ -94,6 +95,17 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 			throw new OperationException(ERR_REP_FHIR_EVENTS, ex);
 		}
 		return insertions;
+	}
+
+
+	private void clearIssuerObject(Document doc) {
+		if(doc.containsKey(EVENT_ISSUER) && configSRV.isCfOnIssuerNotAllowed()) {
+			doc.replace(EVENT_ISSUER, clearIssuer(doc.getString(EVENT_ISSUER)));
+		}
+	}
+
+	private String clearIssuer(String issuer) {
+		return issuer.contains("#") ? issuer.split("#")[0] : issuer;
 	}
 
 }

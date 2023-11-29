@@ -31,6 +31,7 @@ public final class Constants {
 		public static final String TRACE_ID = "traceId";
 		public static final String WORKFLOW_INSTANCE_ID = "workflow_instance_id";
 		public static final String EVENT_DATE = "eventDate";
+		public static final String EVENT_ISSUER = "issuer";
 		public static final String EXPIRING_DATE = "expiring_date";
 
 		private Fields() {}

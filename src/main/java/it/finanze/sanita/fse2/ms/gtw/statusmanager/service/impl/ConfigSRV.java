@@ -13,6 +13,7 @@ package it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl;
 
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IConfigClient;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IConfigSRV;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -26,6 +27,7 @@ import java.util.Map;
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base.ClientRoutes.Config.PROPS_NAME_EXP_DAYS;
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base.ClientRoutes.Config.PROPS_NAME_ISSUER_CF;
 
+@Slf4j
 @Service
 public class ConfigSRV implements IConfigSRV {
 
@@ -44,6 +46,7 @@ public class ConfigSRV implements IConfigSRV {
 	void initialize() {
 		refreshExpirationDate();
 		refreshIsCfOnIssuerAllowed();
+		runningConfiguration();
 	}
 
 	private void refreshExpirationDate() {
@@ -65,13 +68,14 @@ public class ConfigSRV implements IConfigSRV {
 		if (new Date().getTime() - pair.getKey() >= DELTA_MS) {
 			synchronized(PROPS_NAME_EXP_DAYS) {
 				refreshExpirationDate();
+				verifyExpirationDate(pair);
 			}
 		}
 		return (Integer) props.get(PROPS_NAME_EXP_DAYS).getValue();
 	}
 
 	@Override
-	public Boolean isCfOnIssuerAllowed() {
+	public Boolean isCfOnIssuerNotAllowed() {
 		Pair<Long, Object> pair = props.getOrDefault(
 			PROPS_NAME_ISSUER_CF,
 			Pair.of(0L, null)
@@ -79,8 +83,29 @@ public class ConfigSRV implements IConfigSRV {
 		if (new Date().getTime() - pair.getKey() >= DELTA_MS) {
 			synchronized(PROPS_NAME_ISSUER_CF) {
 				refreshIsCfOnIssuerAllowed();
+				verifyIsCfOnIssuerAllowed(pair);
 			}
 		}
 		return (Boolean) props.get(PROPS_NAME_ISSUER_CF).getValue();
+	}
+
+	private void runningConfiguration() {
+		props.forEach((id, pair) -> log.info("[GTW-CONFIG] key: {} | value: {}", id, pair.getValue()));
+	}
+
+	private void verifyExpirationDate(Pair<Long, Object> pair) {
+		int previous = (int) pair.getValue();
+		int current = (int) props.get(PROPS_NAME_EXP_DAYS).getValue();
+		if(previous != current) {
+			log.info("[GTW-CONFIG][UPDATE] key: {} | value: {} (previous: {})", PROPS_NAME_EXP_DAYS, current, previous);
+		}
+	}
+
+	private void verifyIsCfOnIssuerAllowed(Pair<Long, Object> pair) {
+		Boolean previous = (Boolean) pair.getValue();
+		boolean current = (boolean) props.get(PROPS_NAME_ISSUER_CF).getValue();
+		if(previous != current) {
+			log.info("[GTW-CONFIG][UPDATE] key: {} | value: {} (previous: {})", PROPS_NAME_ISSUER_CF, current, previous);
+		}
 	}
 }
