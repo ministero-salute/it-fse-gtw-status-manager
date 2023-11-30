@@ -51,7 +51,8 @@ public final class ClientRoutes {
         public static final String QP_TYPE_STATUS_MANAGER = "STATUS_MANAGER";
         // VALUES
         public static final String PROPS_NAME_EXP_DAYS = "expiring_date_day";
-        public static final String PROPS_NAME_ISSUER_CF = "issuer_cf_cleaning";
+        public static final String PROPS_NAME_ISSUER_CF = "issuer-cf-cleaning";
+        public static final String PROPS_NAME_SUBJECT = "subject-persistence";
 
     }
 

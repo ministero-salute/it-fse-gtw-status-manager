@@ -24,8 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base.ClientRoutes.Config.PROPS_NAME_EXP_DAYS;
-import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base.ClientRoutes.Config.PROPS_NAME_ISSUER_CF;
+import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base.ClientRoutes.Config.*;
 
 @Slf4j
 @Service
@@ -46,12 +45,18 @@ public class ConfigSRV implements IConfigSRV {
 	void initialize() {
 		refreshExpirationDate();
 		refreshIsCfOnIssuerAllowed();
+		refreshIsSubjectPersistenceEnabled();
 		runningConfiguration();
 	}
 
 	private void refreshExpirationDate() {
 		int days = client.getExpirationDate();
 		props.put(PROPS_NAME_EXP_DAYS, Pair.of(new Date().getTime(), days));
+	}
+
+	private void refreshIsSubjectPersistenceEnabled(){
+		boolean out = client.isSubjectPersistenceEnabled();
+		props.put(PROPS_NAME_SUBJECT, Pair.of(new Date().getTime(), out));
 	}
 
 	private void refreshIsCfOnIssuerAllowed() {
@@ -72,6 +77,21 @@ public class ConfigSRV implements IConfigSRV {
 			}
 		}
 		return (Integer) props.get(PROPS_NAME_EXP_DAYS).getValue();
+	}
+
+	@Override
+	public Boolean isSubjectPersistenceEnabled() {
+		Pair<Long, Object> pair = props.getOrDefault(
+				PROPS_NAME_SUBJECT,
+				Pair.of(0L, null)
+		);
+		if (new Date().getTime() - pair.getKey() >= DELTA_MS) {
+			synchronized (PROPS_NAME_SUBJECT) {
+				refreshIsSubjectPersistenceEnabled();
+				verifyIsSubjectPersistenceEnabled(pair);
+			}
+		}
+		return (Boolean) props.get(PROPS_NAME_SUBJECT).getValue();
 	}
 
 	@Override
@@ -98,6 +118,14 @@ public class ConfigSRV implements IConfigSRV {
 		int current = (int) props.get(PROPS_NAME_EXP_DAYS).getValue();
 		if(previous != current) {
 			log.info("[GTW-CONFIG][UPDATE] key: {} | value: {} (previous: {})", PROPS_NAME_EXP_DAYS, current, previous);
+		}
+	}
+
+	private void verifyIsSubjectPersistenceEnabled(Pair<Long, Object> pair){
+		Boolean previous = (Boolean) pair.getValue();
+		boolean current = (boolean) props.get(PROPS_NAME_SUBJECT).getValue();
+		if (previous != current){
+			log.info("[GTW-CONFIG][UPDATE] key: {} | value: {} (previous: {})", PROPS_NAME_SUBJECT, current, previous);
 		}
 	}
 

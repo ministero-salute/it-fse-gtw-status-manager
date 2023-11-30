@@ -15,4 +15,5 @@ public interface IConfigClient {
 
 	Integer getExpirationDate();
 	Boolean isCfOnIssuerAllowed();
+	Boolean isSubjectPersistenceEnabled();
 }

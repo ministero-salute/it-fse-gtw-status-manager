@@ -20,8 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base.ClientRoutes.Config.PROPS_NAME_EXP_DAYS;
-import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base.ClientRoutes.Config.PROPS_NAME_ISSUER_CF;
+import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base.ClientRoutes.Config.*;
 
 @Slf4j
 @Component
@@ -49,10 +48,23 @@ public class ConfigClient implements IConfigClient {
     }
 
     @Override
+    public Boolean isSubjectPersistenceEnabled() {
+        boolean output = false;
+        String endpoint = routes.getStatusManagerConfig(PROPS_NAME_SUBJECT);
+        log.debug("{} - Executing request: {}", routes.identifier(), endpoint);
+
+        if (isReachable()){
+            ResponseEntity<String> response = client.getForEntity(endpoint, String.class);
+            if (response.getBody() != null) output = Boolean.parseBoolean(response.getBody());
+        }
+
+        return output;
+    }
+
+    @Override
     public Boolean isCfOnIssuerAllowed() {
         boolean output = false;
-
-        String endpoint = routes.getGenericProps(PROPS_NAME_ISSUER_CF);
+        String endpoint = routes.getStatusManagerConfig(PROPS_NAME_ISSUER_CF);
         log.debug("{} - Executing request: {}", routes.identifier(), endpoint);
 
         if(isReachable()) {

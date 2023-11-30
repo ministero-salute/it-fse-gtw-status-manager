@@ -70,6 +70,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 			Date expiringDate = DateUtility.addDay(new Date(), configSRV.getExpirationDate());
 			doc.put(EXPIRING_DATE, expiringDate);
 			clearIssuerObject(doc);
+			clearSubjectObject(doc);
 			mongo.upsert(query, Update.fromDocument(doc, "_id"), FhirEvent.class);
 		} catch(Exception ex){
 			log.error("Error while save event : " , ex);
@@ -97,6 +98,12 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 		return insertions;
 	}
 
+
+	private void clearSubjectObject(Document doc) {
+		if (doc.containsKey(EVENT_SUBJECT) && !configSRV.isSubjectPersistenceEnabled()) {
+			doc.remove(EVENT_SUBJECT);
+		}
+	}
 
 	private void clearIssuerObject(Document doc) {
 		if(doc.containsKey(EVENT_ISSUER) && configSRV.isCfOnIssuerNotAllowed()) {
