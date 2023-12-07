@@ -13,14 +13,13 @@ package it.finanze.sanita.fse2.ms.gtw.statusmanager.client.impl;
 
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IConfigClient;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.ConfigClientRoutes;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.ConfigItemDTO;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ConfigItemTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
-
-import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base.ClientRoutes.Config.*;
 
 @Slf4j
 @Component
@@ -32,49 +31,6 @@ public class ConfigClient implements IConfigClient {
     @Autowired
     private ConfigClientRoutes routes;
 
-    @Override
-    public Integer getExpirationDate() {
-    	int output = 5;
-
-        String endpoint = routes.getStatusManagerConfig(PROPS_NAME_EXP_DAYS);
-        log.debug("{} - Executing request: {}", routes.identifier(), endpoint);
-
-    	if(isReachable()) {
-    		ResponseEntity<String> response = client.getForEntity(endpoint, String.class);
-    		if(response.getBody() != null) output = Integer.parseInt(response.getBody());
-    	}
-
-        return output;
-    }
-
-    @Override
-    public Boolean isSubjectPersistenceEnabled() {
-        boolean output = false;
-        String endpoint = routes.getStatusManagerConfig(PROPS_NAME_SUBJECT);
-        log.debug("{} - Executing request: {}", routes.identifier(), endpoint);
-
-        if (isReachable()){
-            ResponseEntity<String> response = client.getForEntity(endpoint, String.class);
-            if (response.getBody() != null) output = Boolean.parseBoolean(response.getBody());
-        }
-
-        return output;
-    }
-
-    @Override
-    public Boolean isCfOnIssuerAllowed() {
-        boolean output = false;
-        String endpoint = routes.getStatusManagerConfig(PROPS_NAME_ISSUER_CF);
-        log.debug("{} - Executing request: {}", routes.identifier(), endpoint);
-
-        if(isReachable()) {
-            ResponseEntity<String> response = client.getForEntity(endpoint, String.class);
-            if(response.getBody() != null) output = Boolean.parseBoolean(response.getBody());
-        }
-
-        return output;
-    }
-
     private boolean isReachable() {
         boolean out;
         try {
@@ -82,6 +38,22 @@ public class ConfigClient implements IConfigClient {
             out = true;
         } catch (ResourceAccessException clientException) {
             out = false;
+        }
+        return out;
+    }
+
+    @Override
+    public ConfigItemDTO getConfigurationItems(ConfigItemTypeEnum type) {
+        return client.getForObject(routes.getConfigItems(type), ConfigItemDTO.class);
+    }
+
+    @Override
+    public String getProps(ConfigItemTypeEnum type, String props, String previous) {
+        String out = previous;
+        String endpoint = routes.getConfigItem(type, props);
+        if (isReachable()) out = client.getForObject(endpoint, String.class);
+        if(out == null || !out.equals(previous)) {
+            log.info("[GTW-CFG] Property {} is set as {} (previously: {})", props, out, previous);
         }
         return out;
     }

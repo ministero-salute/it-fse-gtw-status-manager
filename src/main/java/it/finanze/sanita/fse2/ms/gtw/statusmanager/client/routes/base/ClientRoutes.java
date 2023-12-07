@@ -47,13 +47,9 @@ public final class ClientRoutes {
         // QP
         public static final String QP_TYPE = "type";
         public static final String QP_PROPS = "props";
-        public static final String QP_TYPE_GENERIC = "GENERIC";
-        public static final String QP_TYPE_STATUS_MANAGER = "STATUS_MANAGER";
         // VALUES
-        public static final String PROPS_NAME_EXP_DAYS = "expiring_date_day";
+        public static final String PROPS_NAME_EXP_DAYS = "expiring-date-day";
         public static final String PROPS_NAME_ISSUER_CF = "issuer-cf-cleaning";
         public static final String PROPS_NAME_SUBJECT = "subject-persistence";
-
     }
-
 }

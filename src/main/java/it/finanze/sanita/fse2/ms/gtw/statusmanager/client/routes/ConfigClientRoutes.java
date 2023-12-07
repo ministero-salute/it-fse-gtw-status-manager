@@ -11,6 +11,7 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes;
 
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ConfigItemTypeEnum;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -43,19 +44,20 @@ public final class ConfigClientRoutes {
             .toUriString();
     }
 
-    public String getStatusManagerConfig(String props) {
-        return getConfigItemByName(props, QP_TYPE_STATUS_MANAGER);
-    }
 
-    public String getGenericProps(String props) {
-        return getConfigItemByName(props, QP_TYPE_GENERIC);
-    }
-
-    private String getConfigItemByName(String props, String type) {
+    public String getConfigItem(ConfigItemTypeEnum type, String props) {
         return base()
             .pathSegment(API_VERSION, API_CONFIG_ITEMS, API_PROPS)
-            .queryParam(QP_TYPE, type)
+            .queryParam(QP_TYPE, type.name())
             .queryParam(QP_PROPS, props)
+            .build()
+            .toUriString();
+    }
+
+    public String getConfigItems(ConfigItemTypeEnum type) {
+        return base()
+            .pathSegment(API_VERSION, API_CONFIG_ITEMS)
+            .queryParam(QP_TYPE, type.name())
             .build()
             .toUriString();
     }

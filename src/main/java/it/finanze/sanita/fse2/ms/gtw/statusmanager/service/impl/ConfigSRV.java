@@ -12,6 +12,8 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl;
 
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IConfigClient;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.ConfigItemDTO;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ConfigItemTypeEnum;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IConfigSRV;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
@@ -22,9 +24,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base.ClientRoutes.Config.*;
+import static it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.ConfigItemDTO.*;
+import static it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ConfigItemTypeEnum.STATUS_MANAGER;
 
 @Slf4j
 @Service
@@ -32,10 +37,10 @@ public class ConfigSRV implements IConfigSRV {
 
 	private static final Long DELTA_MS = 300000L;
 
-	private final Map<String, Pair<Long, Object>> props;
-
 	@Autowired
 	private IConfigClient client;
+
+	private final Map<String, Pair<Long, String>> props;
 
 	public ConfigSRV() {
 		this.props = new HashMap<>();
@@ -43,97 +48,67 @@ public class ConfigSRV implements IConfigSRV {
 	
 	@EventListener(ApplicationStartedEvent.class)
 	void initialize() {
-		refreshExpirationDate();
-		refreshIsCfOnIssuerAllowed();
-		refreshIsSubjectPersistenceEnabled();
-		runningConfiguration();
-	}
-
-	private void refreshExpirationDate() {
-		int days = client.getExpirationDate();
-		props.put(PROPS_NAME_EXP_DAYS, Pair.of(new Date().getTime(), days));
-	}
-
-	private void refreshIsSubjectPersistenceEnabled(){
-		boolean out = client.isSubjectPersistenceEnabled();
-		props.put(PROPS_NAME_SUBJECT, Pair.of(new Date().getTime(), out));
-	}
-
-	private void refreshIsCfOnIssuerAllowed() {
-		boolean out = client.isCfOnIssuerAllowed();
-		props.put(PROPS_NAME_ISSUER_CF, Pair.of(new Date().getTime(), out));
+		for(ConfigItemTypeEnum en : ConfigItemTypeEnum.values()) {
+			log.info("[GTW-CFG] Retrieving {} properties ...", en.name());
+			ConfigItemDTO items = client.getConfigurationItems(en);
+			List<ConfigDataItemDTO> opts = items.getConfigurationItems();
+			for(ConfigDataItemDTO opt : opts) {
+				opt.getItems().forEach((key, value) -> {
+					log.info("[GTW-CFG] Property {} is set as {}", key, value);
+					props.put(key, Pair.of(new Date().getTime(), value));
+				});
+			}
+		}
 	}
 
 	@Override
 	public Integer getExpirationDate() {
-		Pair<Long, Object> pair = props.getOrDefault(
-			PROPS_NAME_EXP_DAYS,
-			Pair.of(0L, null)
-		);
-		if (new Date().getTime() - pair.getKey() >= DELTA_MS) {
+		long lastUpdate = props.get(PROPS_NAME_EXP_DAYS).getKey();
+		if (new Date().getTime() - lastUpdate >= DELTA_MS) {
 			synchronized(PROPS_NAME_EXP_DAYS) {
-				refreshExpirationDate();
-				verifyExpirationDate(pair);
+				if (new Date().getTime() - lastUpdate >= DELTA_MS) {
+					refresh(STATUS_MANAGER, PROPS_NAME_EXP_DAYS);
+				}
 			}
 		}
-		return (Integer) props.get(PROPS_NAME_EXP_DAYS).getValue();
+		return Integer.parseInt(
+			props.get(PROPS_NAME_EXP_DAYS).getValue()
+		);
 	}
 
 	@Override
 	public Boolean isSubjectPersistenceEnabled() {
-		Pair<Long, Object> pair = props.getOrDefault(
-				PROPS_NAME_SUBJECT,
-				Pair.of(0L, null)
-		);
-		if (new Date().getTime() - pair.getKey() >= DELTA_MS) {
+		long lastUpdate = props.get(PROPS_NAME_SUBJECT).getKey();
+		if (new Date().getTime() - lastUpdate >= DELTA_MS) {
 			synchronized (PROPS_NAME_SUBJECT) {
-				refreshIsSubjectPersistenceEnabled();
-				verifyIsSubjectPersistenceEnabled(pair);
+				if (new Date().getTime() - lastUpdate >= DELTA_MS) {
+					refresh(STATUS_MANAGER, PROPS_NAME_SUBJECT);
+				}
 			}
 		}
-		return (Boolean) props.get(PROPS_NAME_SUBJECT).getValue();
+		return Boolean.parseBoolean(
+			props.get(PROPS_NAME_SUBJECT).getValue()
+		);
 	}
 
 	@Override
 	public Boolean isCfOnIssuerNotAllowed() {
-		Pair<Long, Object> pair = props.getOrDefault(
-			PROPS_NAME_ISSUER_CF,
-			Pair.of(0L, null)
-		);
-		if (new Date().getTime() - pair.getKey() >= DELTA_MS) {
+		long lastUpdate = props.get(PROPS_NAME_ISSUER_CF).getKey();
+		if (new Date().getTime() - lastUpdate >= DELTA_MS) {
 			synchronized(PROPS_NAME_ISSUER_CF) {
-				refreshIsCfOnIssuerAllowed();
-				verifyIsCfOnIssuerAllowed(pair);
+				if (new Date().getTime() - lastUpdate >= DELTA_MS) {
+					refresh(STATUS_MANAGER, PROPS_NAME_ISSUER_CF);
+				}
 			}
 		}
-		return (Boolean) props.get(PROPS_NAME_ISSUER_CF).getValue();
+		return Boolean.parseBoolean(
+			props.get(PROPS_NAME_ISSUER_CF).getValue()
+		);
 	}
 
-	private void runningConfiguration() {
-		props.forEach((id, pair) -> log.info("[GTW-CONFIG] key: {} | value: {}", id, pair.getValue()));
-	}
-
-	private void verifyExpirationDate(Pair<Long, Object> pair) {
-		int previous = (int) pair.getValue();
-		int current = (int) props.get(PROPS_NAME_EXP_DAYS).getValue();
-		if(previous != current) {
-			log.info("[GTW-CONFIG][UPDATE] key: {} | value: {} (previous: {})", PROPS_NAME_EXP_DAYS, current, previous);
-		}
-	}
-
-	private void verifyIsSubjectPersistenceEnabled(Pair<Long, Object> pair){
-		Boolean previous = (Boolean) pair.getValue();
-		boolean current = (boolean) props.get(PROPS_NAME_SUBJECT).getValue();
-		if (previous != current){
-			log.info("[GTW-CONFIG][UPDATE] key: {} | value: {} (previous: {})", PROPS_NAME_SUBJECT, current, previous);
-		}
-	}
-
-	private void verifyIsCfOnIssuerAllowed(Pair<Long, Object> pair) {
-		Boolean previous = (Boolean) pair.getValue();
-		boolean current = (boolean) props.get(PROPS_NAME_ISSUER_CF).getValue();
-		if(previous != current) {
-			log.info("[GTW-CONFIG][UPDATE] key: {} | value: {} (previous: {})", PROPS_NAME_ISSUER_CF, current, previous);
-		}
+	private void refresh(ConfigItemTypeEnum type, String name) {
+		String previous = props.getOrDefault(name, Pair.of(0L, null)).getValue();
+		String prop = client.getProps(type, name, previous);
+		props.put(name, Pair.of(new Date().getTime(), prop));
 	}
 }
