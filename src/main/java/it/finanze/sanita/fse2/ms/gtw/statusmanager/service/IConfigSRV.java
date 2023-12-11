@@ -15,5 +15,5 @@ public interface IConfigSRV {
 	Integer getExpirationDate();
 	Boolean isCfOnIssuerNotAllowed();
 
-	Boolean isSubjectPersistenceEnabled();
+	Boolean isSubjectNotAllowed();
 }

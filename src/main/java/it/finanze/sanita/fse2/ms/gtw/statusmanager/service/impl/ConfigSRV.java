@@ -78,7 +78,7 @@ public class ConfigSRV implements IConfigSRV {
 	}
 
 	@Override
-	public Boolean isSubjectPersistenceEnabled() {
+	public Boolean isSubjectNotAllowed() {
 		long lastUpdate = props.get(PROPS_NAME_SUBJECT).getKey();
 		if (new Date().getTime() - lastUpdate >= DELTA_MS) {
 			synchronized (PROPS_NAME_SUBJECT) {

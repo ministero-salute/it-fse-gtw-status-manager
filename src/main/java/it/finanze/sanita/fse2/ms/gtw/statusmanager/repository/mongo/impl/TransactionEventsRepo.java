@@ -100,7 +100,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 
 
 	private void clearSubjectObject(Document doc) {
-		if (doc.containsKey(EVENT_SUBJECT) && !configSRV.isSubjectPersistenceEnabled()) {
+		if (doc.containsKey(EVENT_SUBJECT) && configSRV.isSubjectNotAllowed()) {
 			doc.remove(EVENT_SUBJECT);
 		}
 	}
