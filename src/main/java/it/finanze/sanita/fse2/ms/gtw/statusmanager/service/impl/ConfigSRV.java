@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base.ClientRoutes.Config.*;
-import static it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.ConfigItemDTO.*;
+import static it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.ConfigItemDTO.ConfigDataItemDTO;
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ConfigItemTypeEnum.STATUS_MANAGER;
 
 @Slf4j
@@ -59,6 +59,7 @@ public class ConfigSRV implements IConfigSRV {
 				});
 			}
 		}
+		integrity();
 	}
 
 	@Override
@@ -110,5 +111,17 @@ public class ConfigSRV implements IConfigSRV {
 		String previous = props.getOrDefault(name, Pair.of(0L, null)).getValue();
 		String prop = client.getProps(type, name, previous);
 		props.put(name, Pair.of(new Date().getTime(), prop));
+	}
+
+	private void integrity() {
+		String err = "Missing props {} from status-manager";
+		String[] out = new String[]{
+			PROPS_NAME_EXP_DAYS,
+			PROPS_NAME_SUBJECT,
+			PROPS_NAME_ISSUER_CF
+		};
+		for (String prop : out) {
+			if(!props.containsKey(prop)) throw new IllegalStateException(err.replace("{}", prop));
+		}
 	}
 }
