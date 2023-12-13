@@ -29,6 +29,7 @@ import java.util.Map;
 
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base.ClientRoutes.Config.*;
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.ConfigItemDTO.ConfigDataItemDTO;
+import static it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ConfigItemTypeEnum.GENERIC;
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ConfigItemTypeEnum.STATUS_MANAGER;
 
 @Slf4j
@@ -48,7 +49,7 @@ public class ConfigSRV implements IConfigSRV {
 	
 	@EventListener(ApplicationStartedEvent.class)
 	void initialize() {
-		for(ConfigItemTypeEnum en : ConfigItemTypeEnum.values()) {
+		for(ConfigItemTypeEnum en : ConfigItemTypeEnum.priority()) {
 			log.info("[GTW-CFG] Retrieving {} properties ...", en.name());
 			ConfigItemDTO items = client.getConfigurationItems(en);
 			List<ConfigDataItemDTO> opts = items.getConfigurationItems();
@@ -57,6 +58,7 @@ public class ConfigSRV implements IConfigSRV {
 					log.info("[GTW-CFG] Property {} is set as {}", key, value);
 					props.put(key, Pair.of(new Date().getTime(), value));
 				});
+				if(opt.getItems().isEmpty()) log.info("[GTW-CFG] No props were found");
 			}
 		}
 		integrity();
@@ -68,7 +70,7 @@ public class ConfigSRV implements IConfigSRV {
 		if (new Date().getTime() - lastUpdate >= DELTA_MS) {
 			synchronized(PROPS_NAME_EXP_DAYS) {
 				if (new Date().getTime() - lastUpdate >= DELTA_MS) {
-					refresh(STATUS_MANAGER, PROPS_NAME_EXP_DAYS);
+					refresh(PROPS_NAME_EXP_DAYS);
 				}
 			}
 		}
@@ -83,7 +85,7 @@ public class ConfigSRV implements IConfigSRV {
 		if (new Date().getTime() - lastUpdate >= DELTA_MS) {
 			synchronized (PROPS_NAME_SUBJECT) {
 				if (new Date().getTime() - lastUpdate >= DELTA_MS) {
-					refresh(STATUS_MANAGER, PROPS_NAME_SUBJECT);
+					refresh(PROPS_NAME_SUBJECT);
 				}
 			}
 		}
@@ -98,7 +100,7 @@ public class ConfigSRV implements IConfigSRV {
 		if (new Date().getTime() - lastUpdate >= DELTA_MS) {
 			synchronized(PROPS_NAME_ISSUER_CF) {
 				if (new Date().getTime() - lastUpdate >= DELTA_MS) {
-					refresh(STATUS_MANAGER, PROPS_NAME_ISSUER_CF);
+					refresh(PROPS_NAME_ISSUER_CF);
 				}
 			}
 		}
@@ -107,9 +109,9 @@ public class ConfigSRV implements IConfigSRV {
 		);
 	}
 
-	private void refresh(ConfigItemTypeEnum type, String name) {
+	private void refresh(String name) {
 		String previous = props.getOrDefault(name, Pair.of(0L, null)).getValue();
-		String prop = client.getProps(type, name, previous);
+		String prop = client.getProps(name, previous, STATUS_MANAGER);
 		props.put(name, Pair.of(new Date().getTime(), prop));
 	}
 
