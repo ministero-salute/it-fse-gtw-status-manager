@@ -29,7 +29,6 @@ import java.util.Map;
 
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base.ClientRoutes.Config.*;
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.ConfigItemDTO.ConfigDataItemDTO;
-import static it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ConfigItemTypeEnum.GENERIC;
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ConfigItemTypeEnum.STATUS_MANAGER;
 
 @Slf4j
@@ -58,8 +57,8 @@ public class ConfigSRV implements IConfigSRV {
 					log.info("[GTW-CFG] Property {} is set as {}", key, value);
 					props.put(key, Pair.of(new Date().getTime(), value));
 				});
-				if(opt.getItems().isEmpty()) log.info("[GTW-CFG] No props were found");
 			}
+			if(opts.isEmpty()) log.info("[GTW-CFG] No props were found");
 		}
 		integrity();
 	}
