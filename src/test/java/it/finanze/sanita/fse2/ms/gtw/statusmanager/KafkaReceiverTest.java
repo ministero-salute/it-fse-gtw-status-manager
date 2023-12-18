@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl.ConfigSRV;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,6 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.test.context.ActiveProfiles;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IConfigClient;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IKafkaReceiverSRV;
@@ -53,14 +53,14 @@ class KafkaReceiverTest {
 
     @Value("${kafka.statusmanager.topic}")
     String topic;
-    
+
     @MockBean
-	private IConfigClient configClient;
+    private ConfigSRV config;
 
     @Test
     @Description("Generic error test on status manager listener - wrong json")
     void kafkaReceiverErrorTest() {
-    	given(configClient.getExpirationDate()).willReturn(0);
+    	given(config.getExpirationDate()).willReturn(0);
         Map<String, Object> map = new HashMap<>();
         MessageHeaders headers = new MessageHeaders(map);
 

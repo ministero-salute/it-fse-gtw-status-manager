@@ -17,6 +17,7 @@ import static org.springframework.http.HttpMethod.DELETE;
 
 import java.util.ArrayList;
 
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl.ConfigSRV;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IConfigClient;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.DeleteTxResDTO;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.GetTxResDTO;
@@ -48,7 +48,7 @@ class TxExecutorTest {
     private TxExecutor txExecutor;
 
     @MockBean
-    private IConfigClient configClient;
+    private ConfigSRV config;
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -67,7 +67,7 @@ class TxExecutorTest {
         GetTxResDTO last = TestUtility.createLastTxLinksMock();
         DeleteTxResDTO deleted = TestUtility.createDeletedTransactionMock();
 
-        Mockito.when(configClient.getExpirationDate()).thenReturn(5);
+        Mockito.when(config.getExpirationDate()).thenReturn(5);
 
         Mockito.when(restTemplate.getForEntity(anyString(), eq(GetTxResDTO.class)))
                 .thenReturn(new ResponseEntity<>(first, HttpStatus.OK))
@@ -81,7 +81,7 @@ class TxExecutorTest {
 
     @Test
     void executorFailureTestOnInit() {
-        Mockito.when(configClient.getExpirationDate()).thenReturn(5);
+        Mockito.when(config.getExpirationDate()).thenReturn(5);
         Mockito.when(restTemplate.getForEntity(anyString(), eq(GetTxResDTO.class)))
                 .thenThrow(ResourceAccessException.class);
         Assertions.assertEquals(ActionRes.KO, txExecutor.execute());
@@ -91,7 +91,7 @@ class TxExecutorTest {
     void executorFailureTestOnVerify() {
         GetTxResDTO first = TestUtility.createFirstTxLinksMock();
         first.setWif(new ArrayList<>());
-        Mockito.when(configClient.getExpirationDate()).thenReturn(5);
+        Mockito.when(config.getExpirationDate()).thenReturn(5);
         Mockito.when(restTemplate.getForEntity(anyString(), eq(GetTxResDTO.class)))
                 .thenReturn(new ResponseEntity<>(first, HttpStatus.OK));
         Assertions.assertEquals(ActionRes.EMPTY, txExecutor.execute());
@@ -101,7 +101,7 @@ class TxExecutorTest {
     void executorFailureTestOnProcess() {
         GetTxResDTO first = TestUtility.createFirstTxLinksMock();
 
-        Mockito.when(configClient.getExpirationDate()).thenReturn(5);
+        Mockito.when(config.getExpirationDate()).thenReturn(5);
 
         Mockito.when(restTemplate.getForEntity(anyString(), eq(GetTxResDTO.class)))
                 .thenReturn(new ResponseEntity<>(first, HttpStatus.OK))
@@ -115,7 +115,7 @@ class TxExecutorTest {
         GetTxResDTO first = TestUtility.createFirstTxLinksMock();
         GetTxResDTO last = TestUtility.createLastTxLinksMock();
 
-        Mockito.when(configClient.getExpirationDate()).thenReturn(5);
+        Mockito.when(config.getExpirationDate()).thenReturn(5);
 
         Mockito.when(restTemplate.getForEntity(anyString(), eq(GetTxResDTO.class)))
                 .thenReturn(new ResponseEntity<>(first, HttpStatus.OK))
