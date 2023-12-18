@@ -15,6 +15,7 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IConfigClient;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.ConfigItemDTO;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ConfigItemTypeEnum;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IConfigSRV;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.ProfileUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -40,27 +42,22 @@ public class ConfigSRV implements IConfigSRV {
 	@Autowired
 	private IConfigClient client;
 
+	@Autowired
+	private ProfileUtility profiles;
+
 	private final Map<String, Pair<Long, String>> props;
 
 	public ConfigSRV() {
 		this.props = new HashMap<>();
 	}
-	
-	@EventListener(ApplicationStartedEvent.class)
-	void initialize() {
-		for(ConfigItemTypeEnum en : ConfigItemTypeEnum.priority()) {
-			log.info("[GTW-CFG] Retrieving {} properties ...", en.name());
-			ConfigItemDTO items = client.getConfigurationItems(en);
-			List<ConfigDataItemDTO> opts = items.getConfigurationItems();
-			for(ConfigDataItemDTO opt : opts) {
-				opt.getItems().forEach((key, value) -> {
-					log.info("[GTW-CFG] Property {} is set as {}", key, value);
-					props.put(key, Pair.of(new Date().getTime(), value));
-				});
-			}
-			if(opts.isEmpty()) log.info("[GTW-CFG] No props were found");
+
+	@PostConstruct
+	public void postConstruct() {
+		if(!profiles.isTestProfile()) {
+			init();
+		} else {
+			log.info("Skipping gtw-config initialization due to test profile");
 		}
-		integrity();
 	}
 
 	@Override
@@ -124,5 +121,21 @@ public class ConfigSRV implements IConfigSRV {
 		for (String prop : out) {
 			if(!props.containsKey(prop)) throw new IllegalStateException(err.replace("{}", prop));
 		}
+	}
+
+	private void init() {
+		for(ConfigItemTypeEnum en : ConfigItemTypeEnum.priority()) {
+			log.info("[GTW-CFG] Retrieving {} properties ...", en.name());
+			ConfigItemDTO items = client.getConfigurationItems(en);
+			List<ConfigDataItemDTO> opts = items.getConfigurationItems();
+			for(ConfigDataItemDTO opt : opts) {
+				opt.getItems().forEach((key, value) -> {
+					log.info("[GTW-CFG] Property {} is set as {}", key, value);
+					props.put(key, Pair.of(new Date().getTime(), value));
+				});
+			}
+			if(opts.isEmpty()) log.info("[GTW-CFG] No props were found");
+		}
+		integrity();
 	}
 }
