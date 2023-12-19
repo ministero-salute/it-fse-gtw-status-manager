@@ -62,7 +62,7 @@ public class ConfigSRV implements IConfigSRV {
 	public Integer getExpirationDate() {
 		long lastUpdate = props.get(PROPS_NAME_EXP_DAYS).getKey();
 		if (new Date().getTime() - lastUpdate >= DELTA_MS) {
-			synchronized(PROPS_NAME_EXP_DAYS) {
+			synchronized(Locks.EXP_DAYS) {
 				if (new Date().getTime() - lastUpdate >= DELTA_MS) {
 					refresh(PROPS_NAME_EXP_DAYS);
 				}
@@ -77,7 +77,7 @@ public class ConfigSRV implements IConfigSRV {
 	public Boolean isSubjectNotAllowed() {
 		long lastUpdate = props.get(PROPS_NAME_SUBJECT).getKey();
 		if (new Date().getTime() - lastUpdate >= DELTA_MS) {
-			synchronized (PROPS_NAME_SUBJECT) {
+			synchronized (Locks.SUBJECT_CLEANING) {
 				if (new Date().getTime() - lastUpdate >= DELTA_MS) {
 					refresh(PROPS_NAME_SUBJECT);
 				}
@@ -92,7 +92,7 @@ public class ConfigSRV implements IConfigSRV {
 	public Boolean isCfOnIssuerNotAllowed() {
 		long lastUpdate = props.get(PROPS_NAME_ISSUER_CF).getKey();
 		if (new Date().getTime() - lastUpdate >= DELTA_MS) {
-			synchronized(PROPS_NAME_ISSUER_CF) {
+			synchronized(Locks.ISSUER_CF_CLEANING) {
 				if (new Date().getTime() - lastUpdate >= DELTA_MS) {
 					refresh(PROPS_NAME_ISSUER_CF);
 				}
@@ -136,4 +136,12 @@ public class ConfigSRV implements IConfigSRV {
 		}
 		integrity();
 	}
+
+	private static final class Locks {
+		public static final Object EXP_DAYS = new Object();
+		public static final Object SUBJECT_CLEANING = new Object();
+		public static final Object ISSUER_CF_CLEANING = new Object();
+	}
+
+
 }
