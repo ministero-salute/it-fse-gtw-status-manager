@@ -35,8 +35,6 @@ import static it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ConfigItemTypeEn
 @Service
 public class ConfigSRV implements IConfigSRV {
 
-	private static final Long DELTA_MS = 300000L;
-
 	@Autowired
 	private IConfigClient client;
 
@@ -61,9 +59,9 @@ public class ConfigSRV implements IConfigSRV {
 	@Override
 	public Integer getExpirationDate() {
 		long lastUpdate = props.get(PROPS_NAME_EXP_DAYS).getKey();
-		if (new Date().getTime() - lastUpdate >= DELTA_MS) {
+		if (new Date().getTime() - lastUpdate >= getRefreshRate()) {
 			synchronized(Locks.EXP_DAYS) {
-				if (new Date().getTime() - lastUpdate >= DELTA_MS) {
+				if (new Date().getTime() - lastUpdate >= getRefreshRate()) {
 					refresh(PROPS_NAME_EXP_DAYS);
 				}
 			}
@@ -76,9 +74,9 @@ public class ConfigSRV implements IConfigSRV {
 	@Override
 	public Boolean isSubjectNotAllowed() {
 		long lastUpdate = props.get(PROPS_NAME_SUBJECT).getKey();
-		if (new Date().getTime() - lastUpdate >= DELTA_MS) {
+		if (new Date().getTime() - lastUpdate >= getRefreshRate()) {
 			synchronized (Locks.SUBJECT_CLEANING) {
-				if (new Date().getTime() - lastUpdate >= DELTA_MS) {
+				if (new Date().getTime() - lastUpdate >= getRefreshRate()) {
 					refresh(PROPS_NAME_SUBJECT);
 				}
 			}
@@ -91,9 +89,9 @@ public class ConfigSRV implements IConfigSRV {
 	@Override
 	public Boolean isCfOnIssuerNotAllowed() {
 		long lastUpdate = props.get(PROPS_NAME_ISSUER_CF).getKey();
-		if (new Date().getTime() - lastUpdate >= DELTA_MS) {
+		if (new Date().getTime() - lastUpdate >= getRefreshRate()) {
 			synchronized(Locks.ISSUER_CF_CLEANING) {
-				if (new Date().getTime() - lastUpdate >= DELTA_MS) {
+				if (new Date().getTime() - lastUpdate >= getRefreshRate()) {
 					refresh(PROPS_NAME_ISSUER_CF);
 				}
 			}
@@ -135,6 +133,11 @@ public class ConfigSRV implements IConfigSRV {
 			if(opts.isEmpty()) log.info("[GTW-CFG] No props were found");
 		}
 		integrity();
+	}
+
+	@Override
+	public long getRefreshRate() {
+		return 300_000L;
 	}
 
 	private static final class Locks {
