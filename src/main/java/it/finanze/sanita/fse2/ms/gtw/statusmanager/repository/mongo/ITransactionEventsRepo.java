@@ -21,7 +21,7 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.OperationException
  */
 public interface ITransactionEventsRepo {
   
-	void saveEvent(String json, String workflowInstanceId);
+	void saveEvent(String workflowInstanceId, String json, String traceId);
 
 	int saveEventsFhir(List<String> wif, Date timestamp, Date expiration)throws OperationException;
 }

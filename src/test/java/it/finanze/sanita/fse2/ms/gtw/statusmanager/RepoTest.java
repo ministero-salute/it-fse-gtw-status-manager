@@ -38,7 +38,7 @@ class RepoTest {
 		TransactionEventsRepo transEvRep = new TransactionEventsRepo();
 		
 		given(config.getExpirationDate()).willReturn(0);
-		assertThrows(BusinessException.class, () -> transEvRep.saveEvent(null, null));
+		assertThrows(BusinessException.class, () -> transEvRep.saveEvent(null, null,null));
 	}
 	
 }

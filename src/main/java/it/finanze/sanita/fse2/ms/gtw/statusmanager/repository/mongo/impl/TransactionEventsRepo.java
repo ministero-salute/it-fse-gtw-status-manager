@@ -49,7 +49,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	private IConfigSRV configSRV;
 
 	@Override
-	public void saveEvent(String workflowInstanceId, String json) {
+	public void saveEvent(String workflowInstanceId, String json, String traceId) {
 		try {
 			Document doc = Document.parse(json);
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(PATTERN);
@@ -64,7 +64,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 				query.addCriteria(Criteria.where(WORKFLOW_INSTANCE_ID).is(workflowInstanceId).
 						and(EVENT_TYPE).is(eventType).and(EVENT_STATUS).is(eventStatus));
 			} else {
-				query.addCriteria(Criteria.where(TRACE_ID).is(doc.getString(TRACE_ID)).
+				query.addCriteria(Criteria.where(TRACE_ID).is(traceId).
 						and(EVENT_TYPE).is(eventType).and(EVENT_STATUS).is(eventStatus));
 			}
 			Date expiringDate = DateUtility.addDay(new Date(), configSRV.getExpirationDate());

@@ -21,7 +21,7 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.TxScheduler;
 
 @RestController
 @ConditionalOnExpression("'${scheduler.tx-scheduler}'!='-'")
-public class SchedulerActionCTL extends AbstractCTL implements ISchedulerActionCTL{
+public class SchedulerActionCTL implements ISchedulerActionCTL{
 
 	
 	@Autowired

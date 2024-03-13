@@ -11,6 +11,8 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl;
 
+import java.util.Optional;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -28,14 +30,20 @@ public class KafkaReceiverSRV implements IKafkaReceiverSRV {
 
 	@Autowired
 	private ITransactionEventsSRV eventsSRV;
-    
+
+	public static final String SPAN_CONTEXT_HEADER = "b3";
+
+//	public static Optional<Header> getTraceContext(ConsumerRecord<?, ?> cr){
+//		return Optional.ofNullable(cr.headers().lastHeader(SPAN_CONTEXT_HEADER));
+//	}
+
 	@Override
 	@KafkaListener(topics = "#{'${kafka.statusmanager.topic}'}",  clientIdPrefix = "#{'${kafka.client-id}'}", containerFactory = "kafkaListenerDeadLetterContainerFactory", autoStartup = "${event.topic.auto.start}", groupId = "#{'${kafka.consumer.group-id}'}")
 	public void listenerGtw(final ConsumerRecord<String, String> cr, final MessageHeaders messageHeaders) {
 		log.info("GTW LISTENER - Consuming transaction event - Message received with key {}", cr.key());
 		abstractListener(cr);
 	}
-	
+
 	@Override
 	@KafkaListener(topics = "#{'${kafka.statusmanager.eds.topic}'}",  clientIdPrefix = "#{'${kafka.client-eds-id}'}", containerFactory = "kafkaListenerDeadLetterContainerFactoryEds", autoStartup = "${event.topic.auto.start}", groupId = "#{'${kafka.consumer.group-id}'}")
 	public void listenerEds(final ConsumerRecord<String, String> cr, final MessageHeaders messageHeaders) {
@@ -47,7 +55,8 @@ public class KafkaReceiverSRV implements IKafkaReceiverSRV {
 		try {
 			String workflowInstanceId = cr.key();
 			String message = cr.value();
-			srvListener(workflowInstanceId, message);
+			String traceId = Optional.ofNullable(cr.headers().lastHeader(SPAN_CONTEXT_HEADER)).isPresent() ? new String(cr.headers().lastHeader(SPAN_CONTEXT_HEADER).value()) : "";
+			eventsSRV.saveEvent(workflowInstanceId, message,traceId);
 			log.info("END - Listener eds");
 		} catch (Exception e) {
 			log.error("Generic error while consuming eds msg");
@@ -55,11 +64,7 @@ public class KafkaReceiverSRV implements IKafkaReceiverSRV {
 			throw new BusinessException(e);
 		}
 	}
-
-	public void srvListener(final String workflowInstanceId, final String message) {
-		eventsSRV.saveEvent(workflowInstanceId, message);
-	}
-
+ 
 	/**
 	 * @param e
 	 */
@@ -70,24 +75,24 @@ public class KafkaReceiverSRV implements IKafkaReceiverSRV {
 		Throwable excNext = null;
 
 		while (continua) {
-		
+
 			if (excNext != null) {
 				excTmp = excNext;
 				sb.append(", ");
 			}
-			
+
 			sb.append(excTmp.getClass().getCanonicalName());
 			excNext = excTmp.getCause();
-			
+
 			if (excNext == null) {
 				continua = false;
 			}
-			
+
 		}
-		
+
 		log.error("{}", sb.toString());
 	}
-	
- 
-   
+
+
+
 }
