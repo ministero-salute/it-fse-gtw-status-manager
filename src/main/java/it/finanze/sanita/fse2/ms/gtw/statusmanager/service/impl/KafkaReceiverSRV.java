@@ -48,7 +48,6 @@ public class KafkaReceiverSRV implements IKafkaReceiverSRV {
 			String workflowInstanceId = cr.key();
 			String message = cr.value();
 			srvListener(workflowInstanceId, message);
-			log.info("END - Listener eds");
 		} catch (Exception e) {
 			log.error("Generic error while consuming eds msg");
 			deadLetterHelper(e);
