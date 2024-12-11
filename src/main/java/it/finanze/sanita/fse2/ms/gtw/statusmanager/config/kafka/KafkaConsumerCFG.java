@@ -94,6 +94,7 @@ public class KafkaConsumerCFG {
 			props.put("sasl.login.callback.handler.class", CustomAuthenticateCallbackHandler.class);
 			props.put("kafka.oauth.tenantId", kafkaPropsCfg.getTenantId());	
 			props.put("kafka.oauth.appId", kafkaPropsCfg.getAppId());	
+			props.put("kafka.oauth.pfxName", kafkaPropsCfg.getPfxName());	
 			props.put("kafka.oauth.pwd", kafkaPropsCfg.getPwd());	
 		}
 
