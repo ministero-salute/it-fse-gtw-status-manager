@@ -36,12 +36,12 @@ public class KafkaReceiverSRV implements IKafkaReceiverSRV {
 		abstractListener(cr);
 	}
 	
-	@Override
-	@KafkaListener(topics = "#{'${kafka.statusmanager.eds.topic}'}",  clientIdPrefix = "#{'${kafka.client-eds-id}'}", containerFactory = "kafkaListenerDeadLetterContainerFactoryEds", autoStartup = "${event.topic.auto.start}", groupId = "#{'${kafka.consumer.group-id}'}")
-	public void listenerEds(final ConsumerRecord<String, String> cr, final MessageHeaders messageHeaders) {
-		log.info("EDS LISTENER - Consuming transaction event - Message received with key {}", cr.key());
-		abstractListener(cr);
-	}
+//	@Override
+//	@KafkaListener(topics = "#{'${kafka.statusmanager.eds.topic}'}",  clientIdPrefix = "#{'${kafka.client-eds-id}'}", containerFactory = "kafkaListenerDeadLetterContainerFactoryEds", autoStartup = "${event.topic.auto.start}", groupId = "#{'${kafka.consumer.group-id}'}")
+//	public void listenerEds(final ConsumerRecord<String, String> cr, final MessageHeaders messageHeaders) {
+//		log.info("EDS LISTENER - Consuming transaction event - Message received with key {}", cr.key());
+//		abstractListener(cr);
+//	}
 
 	private void abstractListener(ConsumerRecord<String, String> cr) {
 		try {
