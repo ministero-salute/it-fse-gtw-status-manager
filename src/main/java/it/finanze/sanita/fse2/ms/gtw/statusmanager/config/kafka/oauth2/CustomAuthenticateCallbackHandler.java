@@ -57,7 +57,7 @@ public class CustomAuthenticateCallbackHandler implements AuthenticateCallbackHa
                 ClientCredentialParameters.builder(Collections.singleton(sbUri + "/.default"))
                 .build();
         this.tenantId = "https://login.microsoftonline.com/"+ Arrays.asList(configs.get("kafka.oauth.tenantId")).get(0).toString();
-        this.clientId = Arrays.asList(configs.get("kafka.oauth.clientId")).get(0).toString();
+        this.clientId = Arrays.asList(configs.get("kafka.oauth.appId")).get(0).toString();
         this.pwd = Arrays.asList(configs.get("kafka.oauth.pwd")).get(0).toString();
 
     }

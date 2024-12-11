@@ -21,8 +21,8 @@ public class KafkaPropertiesCFG {
 	@Value("${kafka.oauth.tenantId}")
 	private String tenantId;
 
-	@Value("${kafka.oauth.clientId}")
-	private String clientId;
+	@Value("${kafka.oauth.appId}")
+	private String appId;
 
 	@Value("${kafka.oauth.pwd}")
 	private String pwd;

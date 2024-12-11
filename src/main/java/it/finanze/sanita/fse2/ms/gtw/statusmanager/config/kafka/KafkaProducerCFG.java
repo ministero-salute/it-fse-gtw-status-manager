@@ -75,10 +75,9 @@ public class KafkaProducerCFG {
 		if("OAUTHBEARER".equals(kafkaPropCFG.getMechanism())) {
 			props.put("sasl.login.callback.handler.class", CustomAuthenticateCallbackHandler.class);
 			props.put("kafka.oauth.tenantId", kafkaPropCFG.getTenantId());	
-			props.put("kafka.oauth.clientId", kafkaPropCFG.getClientId());	
+			props.put("kafka.oauth.appId", kafkaPropCFG.getAppId());	
 			props.put("kafka.oauth.pwd", kafkaPropCFG.getPwd());	
 		}
-
 		
 		return props;
 	}
