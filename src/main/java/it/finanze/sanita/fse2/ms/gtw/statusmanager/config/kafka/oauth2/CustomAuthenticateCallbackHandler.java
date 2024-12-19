@@ -75,11 +75,8 @@ public class CustomAuthenticateCallbackHandler implements AuthenticateCallbackHa
                     OAuthBearerToken token = getOAuthBearerToken();
                     OAuthBearerTokenCallback oauthCallback = (OAuthBearerTokenCallback) callback;
                     oauthCallback.token(token);
-                } catch (InterruptedException e){
-                    Thread.currentThread().interrupt();
-                    throw new BusinessException("Thread was interrupted while handling callback", e);
-                } catch (ExecutionException | TimeoutException e) {
-                    throw new BusinessException("Error while handling callback");
+                } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                    e.printStackTrace();
                 }
             } else {
                 throw new UnsupportedCallbackException(callback);
