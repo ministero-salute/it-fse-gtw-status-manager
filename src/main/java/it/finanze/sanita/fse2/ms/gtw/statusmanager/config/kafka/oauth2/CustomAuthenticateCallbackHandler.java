@@ -1,6 +1,7 @@
 //Copyright (c) Microsoft Corporation. All rights reserved.
 //Licensed under the MIT License.
 
+
 /*
  * SPDX-License-Identifier: AGPL-3.0-or-later
  * 
@@ -101,7 +102,6 @@ public class CustomAuthenticateCallbackHandler implements AuthenticateCallbackHa
     private OAuthBearerToken getOAuthBearerToken() throws MalformedURLException, InterruptedException, ExecutionException, TimeoutException {
         if (this.aadClient == null) {
             synchronized(this) {
-                if (this.aadClient == null) {
                 	IClientCredential credential = null;
             	    try (FileInputStream certificato = new FileInputStream(new File(pfxPathName))) {
                 		credential = ClientCredentialFactory.createFromCertificate(certificato, this.pwd);	
@@ -112,7 +112,6 @@ public class CustomAuthenticateCallbackHandler implements AuthenticateCallbackHa
                     this.aadClient = ConfidentialClientApplication.builder(this.appId, credential)
                             .authority(this.tenantId)
                             .build();
-                }
             }
         }
 
