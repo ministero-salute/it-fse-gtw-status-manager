@@ -32,6 +32,7 @@ import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
 
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.kafka.oauth2.CustomAuthenticateCallbackHandler;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.StringUtility;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,6 +48,10 @@ public class KafkaConsumerCFG {
 	
 	@Autowired
 	private KafkaTopicCFG topicCFG;
+	
+	@Autowired
+	private KafkaPropertiesCFG kafkaPropsCfg;
+
 
 	/**
 	 * Configurazione consumer.
@@ -58,7 +63,7 @@ public class KafkaConsumerCFG {
 		Map<String, Object> props = new HashMap<>();
 		
 		props.put(ConsumerConfig.CLIENT_ID_CONFIG, kafkaConsumerPropCFG.getClientId());
-		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConsumerPropCFG.getConsumerBootstrapServers());
+		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaPropsCfg.getBootstrapServers());
 		props.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaConsumerPropCFG.getConsumerGroupId());
 		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, kafkaConsumerPropCFG.getConsumerKeyDeserializer());
 		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, kafkaConsumerPropCFG.getConsumerValueDeserializer());
@@ -70,21 +75,29 @@ public class KafkaConsumerCFG {
 			props.put("security.protocol", kafkaConsumerPropCFG.getProtocol());
 		}
 		
-		if(!StringUtility.isNullOrEmpty(kafkaConsumerPropCFG.getMechanism())) {
-			props.put("sasl.mechanism", kafkaConsumerPropCFG.getMechanism());
+		if(!StringUtility.isNullOrEmpty(kafkaPropsCfg.getMechanism())) {
+			props.put("sasl.mechanism", kafkaPropsCfg.getMechanism());
 		}
 		
-		if(!StringUtility.isNullOrEmpty(kafkaConsumerPropCFG.getConfigJaas())) {
-			props.put("sasl.jaas.config", kafkaConsumerPropCFG.getConfigJaas());
+		if(!StringUtility.isNullOrEmpty(kafkaPropsCfg.getConfigJaas())) {
+			props.put("sasl.jaas.config", kafkaPropsCfg.getConfigJaas());
 		}
 		
-		if(!StringUtility.isNullOrEmpty(kafkaConsumerPropCFG.getTrustoreLocation())) {
-			props.put("ssl.truststore.location", kafkaConsumerPropCFG.getTrustoreLocation());
+		if (!StringUtility.isNullOrEmpty(kafkaPropsCfg.getTrustoreLocation())) {
+			props.put("ssl.truststore.location", kafkaPropsCfg.getTrustoreLocation());
+		}
+		if (kafkaPropsCfg.getTrustorePassword() != null && kafkaPropsCfg.getTrustorePassword().length > 0) {
+			props.put("ssl.truststore.password", String.valueOf(kafkaPropsCfg.getTrustorePassword()));
 		}
 		
-		if(!StringUtility.isNullOrEmpty(String.valueOf(kafkaConsumerPropCFG.getTrustorePassword()))) {
-			props.put("ssl.truststore.password", String.valueOf(kafkaConsumerPropCFG.getTrustorePassword()));	
+		if("OAUTHBEARER".equals(kafkaPropsCfg.getMechanism())) {
+			props.put("sasl.login.callback.handler.class", CustomAuthenticateCallbackHandler.class);
+			props.put("kafka.oauth.tenantId", kafkaPropsCfg.getTenantId());	
+			props.put("kafka.oauth.appId", kafkaPropsCfg.getAppId());	
+			props.put("kafka.oauth.pfxPathName", kafkaPropsCfg.getPfxPathName());	
+			props.put("kafka.oauth.pwd", kafkaPropsCfg.getPwd());	
 		}
+
 		
 		return props;
 	}
