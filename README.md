@@ -56,32 +56,28 @@ Copyright 2022 (c) XXXX.
 Please check the [AUTHORS](AUTHORS) file for extended reference.
 
 ## Third-party component licences
-DELETE
+| Dependency                                                                 | Version | License            |
+|----------------------------------------------------------------------------|---------|--------------------|
+| org.springframework.boot:spring-boot-starter-web                           | 2.7.18  | Apache License 2.0 |
+| org.apache.httpcomponents:httpclient                                       | 4.5.14  | Apache License 2.0 |
+| org.springframework.boot:spring-boot-starter-aop                           | 2.7.18  | Apache License 2.0 |
+| org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j | 2.1.1   | Apache License 2.0 |
+| org.springframework.boot:spring-boot-starter-actuator                      | 2.7.18  | Apache License 2.0 |
+| io.micrometer:micrometer-registry-prometheus                               | 1.9.17  | Apache License 2.0 |
+| org.springdoc:springdoc-openapi-ui                                         | 1.6.11  | Apache License 2.0 |
+| ch.qos.logback.contrib:logback-json-classic                                | 0.1.5   | EPL1.0 & LGPL2.1   |
+| ch.qos.logback.contrib:logback-jackson                                     | 0.1.5   | EPL1.0 & LGPL2.1   |
+| org.projectlombok:lombok                                                   | 1.18.30 | MIT License        |
+| org.springframework.boot:spring-boot-starter-test                          | 2.7.18  | Apache License 2.0 |
+| org.springframework.boot:spring-boot-starter-data-mongodb                  | 2.7.18  | Apache License 2.0 |
+| org.mongodb:mongodb-driver-sync                                            | 5.2.1   | Apache License 2.0 |
+| org.mongodb:mongodb-driver-core                                            | 5.2.1   | Apache License 2.0 |
+| org.mongodb:bson                                                           | 5.2.1   | Apache License 2.0 |
+| org.apache.commons:commons-pool2                                           | 2.11.1  | Apache License 2.0 |
+| org.springframework.cloud:spring-cloud-starter-sleuth                      | 3.1.1   | Apache License 2.0 |
+| com.google.code.gson:gson                                                  | 2.9.1   | Apache License 2.0 |
+
 
 ## Licence details
-| Dependency                                                | Version | License            |
-|-----------------------------------------------------------|---------|--------------------|
-| org.springframework.boot:spring-boot-starter-web          | 2.7.18  | Apache License 2.0 |
-| org.apache.httpcomponents:httpclient                      | 4.5.14  | Apache License 2.0 |
-| org.springframework.boot:spring-boot-starter-actuator     | 2.7.18  | Apache License 2.0 |
-| io.micrometer:micrometer-registry-prometheus              | 1.9.17  | Apache License 2.0 |
-| org.springframework.boot:spring-boot-starter-test         | 2.7.18  | Apache License 2.0 |
-| org.mockito:mockito-inline                                | 4.3.1   | MIT License        |
-| org.springframework.boot:spring-boot-starter-data-mongodb | 2.7.18  | Apache License 2.0 |
-| org.mongodb:mongodb-driver-sync                           | 5.2.1   | Apache License 2.0 |
-| org.mongodb:mongodb-driver-core                           | 5.2.1   | Apache License 2.0 |
-| org.mongodb:bson                                          | 5.2.1   | Apache License 2.0 |
-| net.javacrumbs.shedlock:shedlock-spring                   | 4.42.0  | Apache License 2.0 |
-| net.javacrumbs.shedlock:shedlock-provider-mongo           | 4.42.0  | Apache License 2.0 |
-| org.projectlombok:lombok                                  | 1.18.30 | MIT License        |
-| org.springframework.kafka:spring-kafka                    | 2.9.11  | Apache License 2.0 |
-| org.springframework.kafka:spring-kafka-test               | 2.9.11  | Apache License 2.0 |
-| org.springframework.cloud:spring-cloud-starter-sleuth     | 3.1.1   | Apache License 2.0 |
-| ch.qos.logback.contrib:logback-json-classic               | 0.1.5   | EPL1.0 & LGPL2.1   |
-| ch.qos.logback.contrib:logback-jackson                    | 0.1.5   | EPL1.0 & LGPL2.1   |
-| org.springdoc:springdoc-openapi-ui                        | 1.6.11  | Apache License 2.0 |
-| com.microsoft.azure:msal4j                                | 1.17.3  | MIT License        |
-| com.microsoft.azure:azure-client-authentication           | 1.6.15  | MIT License        |
-
 
 The licence for this repository is a [GNU Affero General Public Licence version 3](https://www.gnu.org/licenses/agpl-3.0.html) (SPDX: AGPL-3.0). Please see the [LICENSE](LICENSE) file for full reference.
