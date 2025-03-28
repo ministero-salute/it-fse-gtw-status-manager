@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.18</version>
+		<version>3.4.3</version>
 		<relativePath />
 		<!-- lookup parent from repository -->
 	</parent>
@@ -19,7 +19,8 @@
 	<properties>
 		<!-- Application -->
 		<java.version>21</java.version>
-		<spring-cloud.version>2021.0.1</spring-cloud.version>
+		<spring-boot.version>3.4.3</spring-boot.version>
+		<spring-cloud.version>2024.0.0</spring-cloud.version>
 		<start-class>it.finanze.sanita.fse2.ms.gtw.statusmanager.StatusManagerApplication</start-class>
 		<!-- Build -->
 		<config.infra>${project.basedir}/infrastructure</config.infra>
@@ -31,7 +32,7 @@
 		<sonar.exclusions>
 			src/main/java/it/finanze/sanita/fse2/ms/gtw/statusmanager/config/OpenApiCFG.java
 		</sonar.exclusions>
-		<logback.version>1.2.13</logback.version>
+		<logback.version>1.5.16</logback.version>
 	</properties>
 
 	<dependencies>
@@ -47,9 +48,17 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
+			<version>4.5.13</version>
+			<exclusions>
+        		<exclusion>
+        	    	<groupId>commons-logging</groupId>
+        	    	<artifactId>commons-logging</artifactId>
+        		</exclusion>
+    		</exclusions>
 		</dependency>
 
 
@@ -118,18 +127,13 @@
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
-			<version>2.9.11</version>
+			<version>3.3.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka-test</artifactId>
-			<version>2.9.11</version>
+			<version>3.3.3</version>
 			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-sleuth</artifactId>
 		</dependency>
 
 		<!-- LOGBACK JSON -->
@@ -146,8 +150,8 @@
 
 		<dependency>
 			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>1.6.11</version>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+    		<version>2.8.5</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.yaml</groupId>
@@ -168,6 +172,13 @@
 		      <version>1.6.15</version>
 		      <scope>compile</scope>
 		</dependency>
+
+		<!-- BRAVE TRACER -->
+		<dependency>
+    		<groupId>io.micrometer</groupId>
+    		<artifactId>micrometer-tracing-bridge-brave</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<dependencyManagement>
