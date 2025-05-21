@@ -47,13 +47,6 @@ public class KafkaProducerPropertiesCFG {
 	@Value("${kafka.producer.value-serializer}")
 	private String producerValueSerializer;
 
-
-	/**
-	 * Producer trans id.
-	 */
-	@Value("${kafka.producer.transactional.id}")
-	private String producerTransactionalId;
-	
 	/**
 	 * Flag idempotence.
 	 */
