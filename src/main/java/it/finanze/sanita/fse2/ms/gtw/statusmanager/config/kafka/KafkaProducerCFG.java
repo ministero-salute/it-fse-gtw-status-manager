@@ -80,6 +80,10 @@ public class KafkaProducerCFG {
 			props.put("kafka.oauth.pwd", kafkaPropCFG.getPwd());	
 		}
 		
+		if(!StringUtility.isNullOrEmpty(kafkaPropCFG.getCallbackHandlerClass())) {
+			props.put("sasl.login.callback.handler.class", kafkaPropCFG.getCallbackHandlerClass());
+		}
+		
 		return props;
 	}
 

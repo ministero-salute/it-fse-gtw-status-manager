@@ -60,4 +60,6 @@ public class KafkaPropertiesCFG {
 	@Value("${kafka.properties.ssl.truststore.password}")
 	private char[] trustorePassword;
 	 
+	@Value("${kafka.properties.sasl.client.callback.handler.class:#{null}}")
+	private String callbackHandlerClass;
 }

@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.config.SslConfigs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -98,6 +99,9 @@ public class KafkaConsumerCFG {
 			props.put("kafka.oauth.pwd", kafkaPropsCfg.getPwd());	
 		}
 
+		if(!StringUtility.isNullOrEmpty(kafkaPropsCfg.getCallbackHandlerClass())) {
+			props.put("sasl.login.callback.handler.class", kafkaPropsCfg.getCallbackHandlerClass());
+		}
 		
 		return props;
 	}
