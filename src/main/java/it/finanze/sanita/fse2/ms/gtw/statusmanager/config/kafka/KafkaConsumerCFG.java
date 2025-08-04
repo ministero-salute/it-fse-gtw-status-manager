@@ -100,7 +100,7 @@ public class KafkaConsumerCFG {
 		}
 
 		if(!StringUtility.isNullOrEmpty(kafkaPropsCfg.getCallbackHandlerClass())) {
-			props.put("sasl.login.callback.handler.class", kafkaPropsCfg.getCallbackHandlerClass());
+			props.put("sasl.client.callback.handler.class", kafkaPropsCfg.getCallbackHandlerClass());
 		}
 		
 		return props;
