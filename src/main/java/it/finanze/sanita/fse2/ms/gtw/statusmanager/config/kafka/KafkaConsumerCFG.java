@@ -71,6 +71,7 @@ public class KafkaConsumerCFG {
 		props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, kafkaConsumerPropCFG.getIsolationLevel());
 		props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, kafkaConsumerPropCFG.getAutoCommit());
 		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, kafkaConsumerPropCFG.getAutoOffsetReset());
+		props.put(ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingConsumerInterceptor.class.getName());
 		
 		if(!StringUtility.isNullOrEmpty(kafkaConsumerPropCFG.getProtocol())) {
 			props.put("security.protocol", kafkaConsumerPropCFG.getProtocol());
@@ -101,7 +102,7 @@ public class KafkaConsumerCFG {
 
 		if(!StringUtility.isNullOrEmpty(kafkaPropsCfg.getCallbackHandlerClass())) {
 			props.put("sasl.client.callback.handler.class", kafkaPropsCfg.getCallbackHandlerClass());
-			props.put(ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingConsumerInterceptor.class.getName());
+			
 		}
 		
 		return props;
