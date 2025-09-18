@@ -17,7 +17,6 @@ import static org.springframework.http.HttpMethod.DELETE;
 
 import java.util.ArrayList;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl.ConfigSRV;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,11 +24,11 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
@@ -39,6 +38,7 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.G
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ActionRes;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity.FhirEvent;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.executors.impl.TxExecutor;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl.ConfigSRV;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(Constants.Profile.TEST)
@@ -47,13 +47,13 @@ class TxExecutorTest {
     @Autowired
     private TxExecutor txExecutor;
 
-    @MockBean
+    @MockitoBean
     private ConfigSRV config;
 
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    @MockBean
+    @MockitoBean
     private RestTemplate restTemplate;
 
     @BeforeEach

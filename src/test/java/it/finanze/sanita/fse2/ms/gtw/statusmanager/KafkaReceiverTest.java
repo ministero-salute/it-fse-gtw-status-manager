@@ -21,24 +21,24 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl.ConfigSRV;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Description;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IKafkaReceiverSRV;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.ITransactionEventsSRV;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl.ConfigSRV;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(Constants.Profile.TEST)
@@ -48,13 +48,13 @@ class KafkaReceiverTest {
     @Autowired
     private IKafkaReceiverSRV kafkaReceiverSRV;
 
-    @SpyBean
+    @MockitoSpyBean
     private ITransactionEventsSRV eventsSRV;
 
     @Value("${kafka.statusmanager.topic}")
     String topic;
 
-    @MockBean
+    @MockitoBean
     private ConfigSRV config;
 
     @Test

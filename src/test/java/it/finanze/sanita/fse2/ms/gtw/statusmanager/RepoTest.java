@@ -14,22 +14,22 @@ package it.finanze.sanita.fse2.ms.gtw.statusmanager;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl.ConfigSRV;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.impl.TransactionEventsRepo;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl.ConfigSRV;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(Constants.Profile.TEST)
 class RepoTest { 
 	
-	@MockBean
+	@MockitoBean
 	private ConfigSRV config;
 
 	@Test

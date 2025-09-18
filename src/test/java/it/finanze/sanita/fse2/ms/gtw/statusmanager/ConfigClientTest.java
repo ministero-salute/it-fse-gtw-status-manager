@@ -1,31 +1,32 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IConfigClient;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.ConfigClientRoutes;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.ConfigItemDTO;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ConfigItemTypeEnum;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants.Profile.TEST;
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ConfigItemTypeEnum.GENERIC;
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ConfigItemTypeEnum.STATUS_MANAGER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.client.RestTemplate;
+
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IConfigClient;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.ConfigClientRoutes;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.ConfigItemDTO;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ConfigItemTypeEnum;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -37,7 +38,7 @@ class ConfigClientTest {
     @Autowired
     private IConfigClient config;
 
-    @MockBean
+    @MockitoBean
     private RestTemplate client;
 
     @Autowired
