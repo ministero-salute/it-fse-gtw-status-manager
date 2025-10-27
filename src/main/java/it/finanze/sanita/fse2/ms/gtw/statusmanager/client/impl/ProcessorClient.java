@@ -39,46 +39,43 @@ public class ProcessorClient implements IProcessorClient {
     private ProcessorClientRoutes routes;
 
     @Override
-    public GetTxResDTO getTransactions(OffsetDateTime timestamp, int page, int limit) {
+    public GetTxResDTO getTransactions(OffsetDateTime timestamp, int page, int limit, String regionCode) {
 
-        String endpoint = routes.getTransactions(page, limit, timestamp);
+        String endpoint = routes.getTransactions(page, limit, timestamp, regionCode);
         log.debug(Constants.Logs.EXECUTE_REQUEST, routes.identifier(), endpoint);
 
         // Execute request
         ResponseEntity<GetTxResDTO> response = client.getForEntity(
-            endpoint,
-            GetTxResDTO.class
-        );
+                endpoint,
+                GetTxResDTO.class);
 
         return response.getBody();
     }
 
     @Override
-    public GetTxResDTO getTransactions(String url) {
+    public GetTxResDTO getTransactions(String url, String regionCode) {
         log.debug(Constants.Logs.EXECUTE_REQUEST, routes.identifier(), url);
 
         // Execute request
         ResponseEntity<GetTxResDTO> response = client.getForEntity(
-            url,
-            GetTxResDTO.class
-        );
+                url,
+                GetTxResDTO.class);
 
         return response.getBody();
     }
 
     @Override
-    public DeleteTxResDTO deleteTransactions(OffsetDateTime timestamp) {
+    public DeleteTxResDTO deleteTransactions(OffsetDateTime timestamp, String regionCode) {
 
-        String endpoint = routes.deleteTransactions(timestamp);
+        String endpoint = routes.deleteTransactions(timestamp, regionCode);
         log.debug(Constants.Logs.EXECUTE_REQUEST, routes.identifier(), endpoint);
 
         // Execute request
         ResponseEntity<DeleteTxResDTO> response = client.exchange(
-            endpoint,
-            DELETE,
-            null,
-            DeleteTxResDTO.class
-        );
+                endpoint,
+                DELETE,
+                null,
+                DeleteTxResDTO.class);
 
         return response.getBody();
     }

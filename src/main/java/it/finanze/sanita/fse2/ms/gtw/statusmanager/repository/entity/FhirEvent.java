@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 public class FhirEvent {
 
     private static final String FHIR_OUTCOME = "SUCCESS";
-    private static final String FHIR_TYPE = "EDS_WORKFLOW";
+    private static final String FHIR_TYPE = "UAR_FINAL_STATUS";
 
     public static final String FIELD_ID = "_id";
     public static final String FIELD_WIF = "workflow_instance_id";

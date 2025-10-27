@@ -28,6 +28,7 @@ public final class ClientRoutes {
         public static final String TIMESTAMP_QP = "timestamp";
         public static final String PAGE_QP = "page";
         public static final String LIMIT_QP = "limit";
+        public static final String REGION_PATH_PARAM = "rda";
         // ENDPOINT
         public static final String API_VERSION = "v1";
         public static final String TRANSACTIONS_PATH = "transactions";
