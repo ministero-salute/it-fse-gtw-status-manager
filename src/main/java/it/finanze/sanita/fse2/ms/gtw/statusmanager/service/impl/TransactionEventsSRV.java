@@ -11,12 +11,16 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl;
 
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.CallbackTransactionDataRequestDTO;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity.TransactionDataETY;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.ITransactionEventsRepo;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.ITransactionEventsSRV;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 /**
  *
@@ -45,6 +49,21 @@ public class TransactionEventsSRV extends AbstractService implements ITransactio
     		throw new BusinessException(ex);
     	}
     }
- 
+
+    @Override
+    public void saveEvent(CallbackTransactionDataRequestDTO callbackTransactionDataRequestDTO) {
+        try {
+            log.info("START - Save event");
+            transactionEventsRepo.saveEdsEvent(
+                callbackTransactionDataRequestDTO.getWorkflowInstanceId(),
+                callbackTransactionDataRequestDTO.getInsertionDate(),
+                TransactionDataETY.FHIR_TYPE_UAR,
+                callbackTransactionDataRequestDTO.getStatus());
+            log.info("END - Save event");
+        } catch(Exception ex) {
+            log.error("Errore while save event : " , ex);
+            throw new BusinessException(ex);
+        }
+    }
 
 }

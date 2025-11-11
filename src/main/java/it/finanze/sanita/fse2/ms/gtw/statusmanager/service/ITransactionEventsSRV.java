@@ -11,10 +11,13 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.service;
 
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.CallbackTransactionDataRequestDTO;
+
 import java.io.Serializable;
 
 public interface ITransactionEventsSRV extends Serializable {
 
 	void saveEvent(String workflowInstanceId , String json);
+	void saveEvent(CallbackTransactionDataRequestDTO callbackTransactionDataRequestDTO);
 
 }

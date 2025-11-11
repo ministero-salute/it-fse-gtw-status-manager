@@ -14,7 +14,7 @@ package it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.impl;
 import com.mongodb.MongoException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.OperationException;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity.FhirEvent;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity.TransactionDataETY;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.ITransactionEventsRepo;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IConfigSRV;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.DateUtility;
@@ -71,23 +71,33 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 			doc.put(EXPIRING_DATE, expiringDate);
 			clearIssuerObject(doc);
 			clearSubjectObject(doc);
-			mongo.upsert(query, Update.fromDocument(doc, "_id"), FhirEvent.class);
+			mongo.upsert(query, Update.fromDocument(doc, "_id"), TransactionDataETY.class);
 		} catch(Exception ex){
 			log.error("Error while save event : " , ex);
 			throw new BusinessException("Error while save event : " , ex);
 		}
 	}
 
-	@Override
+    @Override
+    public TransactionDataETY saveEdsEvent(String workflowInstanceId, Date date, String type, String status) {
+        TransactionDataETY transactionDataETY = new TransactionDataETY();
+        transactionDataETY.setWorkflowInstanceId(workflowInstanceId);
+        transactionDataETY.setDate(date);
+        transactionDataETY.setType(type);
+        transactionDataETY.setStatus(status);
+        return mongo.save(transactionDataETY);
+    }
+
+    @Override
 	public int saveEventsFhir(List<String> wif, Date timestamp, Date expiration) throws OperationException {
 		// Working var
 		int insertions;
 		// Convert each wif into fhir event
 		// Using .parallel() to speed up the work
-		List<FhirEvent> events = wif
+		List<TransactionDataETY> events = wif
 			.stream()
 			.parallel()
-			.map(id -> FhirEvent.asSuccess(id, timestamp, expiration))
+			.map(id -> TransactionDataETY.asSuccess(id, timestamp, expiration))
 			.collect(Collectors.toList());
 		// Insert
 		try {
