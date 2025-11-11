@@ -23,7 +23,7 @@ public class MicroservicesURLCFG {
 	/**
 	 * Data processor host.
 	 */
-	@Value("${ms.url.eds-processor-service}")
+	@Value("${ms.url.eds-broker}")
 	private String processorHost;
 	
 	/**

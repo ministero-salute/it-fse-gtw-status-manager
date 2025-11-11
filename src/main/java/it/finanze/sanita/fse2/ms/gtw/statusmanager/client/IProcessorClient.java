@@ -18,10 +18,10 @@ import java.time.OffsetDateTime;
 
 public interface IProcessorClient {
 
-    GetTxResDTO getTransactions(OffsetDateTime timestamp, int page, int limit);
+    GetTxResDTO getTransactions(OffsetDateTime timestamp, int page, int limit, String regionCode);
 
-    GetTxResDTO getTransactions(String url);
+    GetTxResDTO getTransactions(String url, String regionCode);
 
-    DeleteTxResDTO deleteTransactions(OffsetDateTime timestamp);
+    DeleteTxResDTO deleteTransactions(OffsetDateTime timestamp, String regionCode);
 
 }

@@ -21,7 +21,6 @@ import java.time.OffsetDateTime;
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base.ClientRoutes.Processor.*;
 import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 
-
 @Component
 public final class ProcessorClientRoutes {
 
@@ -40,20 +39,22 @@ public final class ProcessorClientRoutes {
         return IDENTIFIER_MS;
     }
 
-    public String getTransactions(int page, int limit, OffsetDateTime timestamp) {
+    public String getTransactions(int page, int limit, OffsetDateTime timestamp, String regionCode) {
         return base()
-            .pathSegment(API_VERSION, TRANSACTIONS_PATH)
-            .queryParam(TIMESTAMP_QP, ISO_DATE_TIME.format(timestamp))
-            .queryParam(PAGE_QP, page)
-            .queryParam(LIMIT_QP, limit)
-            .build().toUriString();
+                .pathSegment(API_VERSION, TRANSACTIONS_PATH)
+                .pathSegment(REGION_PATH_PARAM, regionCode)
+                .queryParam(TIMESTAMP_QP, ISO_DATE_TIME.format(timestamp))
+                .queryParam(PAGE_QP, page)
+                .queryParam(LIMIT_QP, limit)
+                .build().toUriString();
     }
 
-    public String deleteTransactions(OffsetDateTime timestamp) {
+    public String deleteTransactions(OffsetDateTime timestamp, String regionCode) {
         return base()
-            .pathSegment(API_VERSION, TRANSACTIONS_PATH)
-            .queryParam(TIMESTAMP_QP, ISO_DATE_TIME.format(timestamp))
-            .build().toUriString();
+                .pathSegment(API_VERSION, TRANSACTIONS_PATH)
+                .pathSegment(REGION_PATH_PARAM, regionCode)
+                .queryParam(TIMESTAMP_QP, ISO_DATE_TIME.format(timestamp))
+                .build().toUriString();
     }
 
 }
