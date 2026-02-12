@@ -12,6 +12,7 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.service;
 
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.CallbackTransactionDataRequestDTO;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.CallbackTransactionDataResponseDTO;
 
 import java.io.Serializable;
 
@@ -20,4 +21,13 @@ public interface ITransactionEventsSRV extends Serializable {
 	void saveEvent(String workflowInstanceId , String json);
 	void saveEvent(CallbackTransactionDataRequestDTO callbackTransactionDataRequestDTO);
 
+	/**
+	 * Save transaction status to database and notify Touchpoint Regionale.
+	 *
+	 * @param request Transaction data request
+	 * @return Response with success flag
+	 */
+	CallbackTransactionDataResponseDTO saveTransactionStatus(CallbackTransactionDataRequestDTO request);
+
 }
+

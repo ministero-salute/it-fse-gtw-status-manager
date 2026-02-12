@@ -13,6 +13,7 @@ import lombok.ToString;
 public class CallbackTransactionDataRequestDTO {
     @NotNull
     private String workflowInstanceId;
+    @NotNull
     private String type;
     @NotNull
 	private Date insertionDate;
