@@ -50,12 +50,6 @@ public class KafkaConsumerPropertiesCFG {
 	private String consumerValueDeserializer;
 
 	/**
-	 * Consumer bootstrap server.
-	 */
-	@Value("${kafka.consumer.bootstrap-servers}")
-	private String consumerBootstrapServers;
-	
-	/**
 	 * Isolation level.
 	 */
 	@Value("${kafka.consumer.isolation.level}")
@@ -85,28 +79,5 @@ public class KafkaConsumerPropertiesCFG {
 	@Value("${kafka.properties.security.protocol}")
 	private String protocol;
 	
-	/**
-	 * Meccanismo.
-	 */
-	@Value("${kafka.properties.sasl.mechanism}")
-	private String mechanism;
-	
-	/**
-	 * Config jaas.
-	 */
-	@Value("${kafka.properties.sasl.jaas.config}")
-	private String configJaas;
-	
-	/**
-	 * Truststore location.
-	 */
-	@Value("${kafka.properties.ssl.truststore.location}")
-	private String trustoreLocation;
-	
-	/**
-	 * Truststore password.
-	 */
-	@Value("${kafka.properties.ssl.truststore.password}")
-	private transient char[] trustorePassword;
-	
+	 
 }

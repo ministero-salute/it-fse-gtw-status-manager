@@ -15,13 +15,16 @@ import java.util.Date;
 import java.util.List;
 
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.OperationException;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity.TransactionDataETY;
 
 /**
  * Validation Event interface repository
  */
 public interface ITransactionEventsRepo {
-  
-	void saveEvent(String json, String workflowInstanceId);
 
-	int saveEventsFhir(List<String> wif, Date timestamp, Date expiration)throws OperationException;
+    void saveEvent(String json, String workflowInstanceId);
+
+    TransactionDataETY saveEdsEvent(String workflowInstanceId, Date date, String type, String status );
+
+    int saveEventsFhir(List<String> wif, Date timestamp, Date expiration)throws OperationException;
 }

@@ -11,9 +11,13 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.config;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 /**
  * Constants application.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Constants {
 
 	
@@ -67,12 +71,12 @@ public final class Constants {
 
         private Logs() {}
 	}
-  
-	/**
-	 *	Constants.
-	 */
-	private Constants() {
-
+	
+	@NoArgsConstructor(access = AccessLevel.PRIVATE)
+	public static final class Properties {
+		public static final String MS_NAME = "gtw-status-manager";
+		 
 	}
+	 
 
 }

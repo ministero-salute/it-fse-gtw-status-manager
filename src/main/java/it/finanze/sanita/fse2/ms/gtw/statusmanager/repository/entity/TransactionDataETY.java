@@ -23,10 +23,11 @@ import lombok.NoArgsConstructor;
 @Document(collection = "#{@transactionDataBean}")
 @Data
 @NoArgsConstructor
-public class FhirEvent {
+public class TransactionDataETY {
 
     private static final String FHIR_OUTCOME = "SUCCESS";
     private static final String FHIR_TYPE = "EDS_WORKFLOW";
+    public static final String FHIR_TYPE_UAR = "UAR_FINAL_STATUS";
 
     public static final String FIELD_ID = "_id";
     public static final String FIELD_WIF = "workflow_instance_id";
@@ -52,9 +53,9 @@ public class FhirEvent {
     private String extra;
     
 
-    public static FhirEvent asSuccess(String wif, Date date, Date expiringDate) {
+    public static TransactionDataETY asSuccess(String wif, Date date, Date expiringDate) {
         // Create document
-        FhirEvent event = new FhirEvent();
+        TransactionDataETY event = new TransactionDataETY();
         // Update field
         event.setWorkflowInstanceId(wif);
         event.setDate(date);

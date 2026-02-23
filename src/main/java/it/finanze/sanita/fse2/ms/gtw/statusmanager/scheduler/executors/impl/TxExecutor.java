@@ -14,142 +14,212 @@ package it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.executors.impl;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IProcessorClient;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.DeleteTxResDTO;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.processor.res.tx.GetTxResDTO;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ActionRes;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.SubjectOrganizationEnum;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.OperationException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.ITransactionEventsRepo;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.actions.base.IActionStepEDS;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.executors.base.LExecutor;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.IConfigSRV;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.DateUtility;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.impl.ProcessorClient.CHUNK_LIMIT;
-import static it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ActionRes.*;
 import static it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.DateUtility.getCurrentTime;
-import static java.lang.String.format;
 
 @Slf4j
 @Component
-public class TxExecutor extends LExecutor {
+public class TxExecutor {
 
-    public static final String TITLE = "TX";
+    private static final List<SubjectOrganizationEnum> REGIONS = List.of(
+            SubjectOrganizationEnum.REGIONE_PIEMONTE,
+            SubjectOrganizationEnum.REGIONE_VALLE_AOSTA,
+            SubjectOrganizationEnum.REGIONE_LOMBARDIA,
+            SubjectOrganizationEnum.REGIONE_BOLZANO,
+            SubjectOrganizationEnum.REGIONE_TRENTO,
+            SubjectOrganizationEnum.REGIONE_VENETO,
+            SubjectOrganizationEnum.REGIONE_FRIULI_VENEZIA_GIULIA,
+            SubjectOrganizationEnum.REGIONE_LIGURIA,
+            SubjectOrganizationEnum.REGIONE_EMILIA_ROMAGNA,
+            SubjectOrganizationEnum.REGIONE_TOSCANA,
+            SubjectOrganizationEnum.REGIONE_UMBRIA,
+            SubjectOrganizationEnum.REGIONE_MARCHE,
+            SubjectOrganizationEnum.REGIONE_LAZIO,
+            SubjectOrganizationEnum.REGIONE_ABRUZZO,
+            SubjectOrganizationEnum.REGIONE_MOLISE,
+            SubjectOrganizationEnum.REGIONE_CAMPANIA,
+            SubjectOrganizationEnum.REGIONE_PUGLIA,
+            SubjectOrganizationEnum.REGIONE_BASILICATA,
+            SubjectOrganizationEnum.REGIONE_CALABRIA,
+            SubjectOrganizationEnum.REGIONE_SICILIA,
+            SubjectOrganizationEnum.REGIONE_SARDEGNA);
 
-    @Autowired
-    private IProcessorClient processor;
+    private static final int MAX_RETRIES = 3;
+    private static final long BASE_BACKOFF_MS = 2_000;
 
-    @Autowired
-    private ITransactionEventsRepo transaction;
-    
-    @Autowired
-    private IConfigSRV configSRV;
+    private final IProcessorClient processorClient;
+    private final ITransactionEventsRepo transactionRepo;
+    private final IConfigSRV configSRV;
 
-    private OffsetDateTime timestamp;
-
-    private GetTxResDTO changeset;
-
-    private long processed;
-    private long deleted;
-
-    @Override
-    protected ActionRes onReset() {
-        this.changeset = null;
-        this.timestamp = null;
-        this.processed = 0;
-        this.deleted = 0;
-        return OK;
+    public TxExecutor(IProcessorClient processor,
+            ITransactionEventsRepo transactionRepo,
+            IConfigSRV configSRV) {
+        this.processorClient = processor;
+        this.transactionRepo = transactionRepo;
+        this.configSRV = configSRV;
     }
 
-    @Override
-    protected LinkedHashMap<String, IActionStepEDS> getSteps() {
-        // Working var
-        LinkedHashMap<String, IActionStepEDS> steps = new LinkedHashMap<>();
-        // Append steps
-        steps.put("RESET", this::onReset);
-        steps.put("INIT", this::onInit);
-        steps.put("VERIFY", this::onVerify);
-        steps.put("PROCESS", this::onProcess);
-        steps.put("DELETE", this::onDelete);
-        // Return new state
-        return steps;
-    }
+    @Scheduled(cron = "${scheduler.tx-scheduler}")
+    @SchedulerLock(name = "txScheduler", lockAtMostFor = "15m", lockAtLeastFor = "1m")
+    public void run() {
+        log.info("[TX] Start sequential run for {} region(s)", REGIONS.size());
 
-    protected ActionRes onInit() {
-        // Working var
-        ActionRes res = KO;
-        // Define current time
-        this.timestamp = getCurrentTime();
-        // Display timestamp
-        log.info("[{}] - Current timestamp: {}", TITLE, timestamp);
-        try {
-            // Execute request
-            this.changeset = processor.getTransactions(timestamp, 0, CHUNK_LIMIT);
-            // Flag it
-            res = OK;
-        }catch (Exception ex) {
-            log.error(
-                format("[%s] Unable to retrieve transaction changeset", TITLE),
-                ex
-            );
+        List<RegionResult> results = new ArrayList<>(REGIONS.size());
+
+        for (var region : REGIONS) {
+            final OffsetDateTime ts = getCurrentTime();
+            log.info("[TX] Processing region {} with timestamp={}", region, ts);
+            RegionResult result = processRegion(region, ts);
+            results.add(result);
         }
-        return res;
+
+        long ok = results.stream().filter(r -> r.error == null).count();
+        long ko = results.size() - ok;
+
+        log.info("[TX] Sequential run completed: success={}, failed={}", ok, ko);
+        results.stream()
+                .filter(r -> r.error != null)
+                .forEach(r -> log.error("[TX] Region {} ({}): FAILED — {}", r.name(), r.code(), r.error.toString(),
+                        r.error));
     }
 
-    protected ActionRes onVerify() {
-        return this.changeset.getWif().isEmpty() ? EMPTY : OK;
-    }
+    private RegionResult processRegion(SubjectOrganizationEnum region, OffsetDateTime ts) {
+        final String code = region.getCode();
+        final String name = region.getDisplay();
 
-    protected ActionRes onProcess() {
-        // Working var
-        ActionRes res = KO;
         try {
-        	//Expiring date
-        	Date exp = DateUtility.addDay(new Date(), configSRV.getExpirationDate());
-            Date time = Date.from(timestamp.toInstant());
-            // Save request and process
-            this.processed = transaction.saveEventsFhir(changeset.getWif(), time ,exp);
-            // Iterate until data is exhausted given a previous request
-            while (changeset.getLinks().getNext() != null) {
-                // Next request
-                changeset = processor.getTransactions(changeset.getLinks().getNext());
-                // Save transaction
-                this.processed += transaction.saveEventsFhir(changeset.getWif(), time, exp);
+            log.info("[TX] ==> Begin region {} ({})", name, code);
+
+            long processed = fetchAndProcessAll(ts, code);
+            log.debug("[TX] [{}:{}] Processed transactions: {}", name, code, processed);
+
+            DeleteTxResDTO del = retry("DELETE-" + code, () -> processorClient.deleteTransactions(ts, code));
+            long deleted = (del != null) ? del.getDeletedTransactions() : 0L;
+            log.debug("[TX] [{}:{}] Deleted transactions: {}", name, code, deleted);
+
+            log.info("[TX] <== End   region {} ({})", name, code);
+            return new RegionResult(region, processed, deleted, null);
+        } catch (Exception ex) {
+            log.error("[TX] Error on region {} ({})", name, code, ex);
+            return new RegionResult(region, 0L, 0L, ex);
+        }
+    }
+
+    /**
+     * Fetch and process all pages for one region (retries around network calls).
+     * 
+     * @throws OperationException
+     */
+    private long fetchAndProcessAll(OffsetDateTime ts, String regionCode) throws OperationException {
+        // first page
+        GetTxResDTO page = retry("INIT-" + regionCode,
+                () -> processorClient.getTransactions(ts, 0, CHUNK_LIMIT, regionCode));
+        if (page == null || page.getWif() == null || page.getWif().isEmpty()) {
+            log.info("[TX] [{}] No transactions to process", regionCode);
+            return 0L;
+        }
+        long count = 0L;
+        Date tsDate = Date.from(ts.toInstant());
+        Date expDate = DateUtility.addDay(new Date(), configSRV.getExpirationDate());
+
+        // first page
+        count += transactionRepo.saveEventsFhir(page.getWif(), tsDate, expDate);
+
+        // next pages
+        while (page.getLinks() != null && page.getLinks().getNext() != null) {
+            final String nextUrl = page.getLinks().getNext();
+            page = retry("PAGE-" + regionCode, () -> processorClient.getTransactions(nextUrl, regionCode));
+            if (page != null && page.getWif() != null && !page.getWif().isEmpty()) {
+                count += transactionRepo.saveEventsFhir(page.getWif(), tsDate, expDate);
             }
-            // Flag it
-            res = OK;
-            // Display
-            log.debug("[{}] - Updated transactions: {}", TITLE, processed);
-        }catch (Exception ex){
-            log.error(
-                format("[%s] Unable to update transactions", TITLE),
-                ex
-            );
         }
-        return res;
+        return count;
     }
 
-    protected ActionRes onDelete() {
-        // Working var
-        ActionRes res = KO;
-        try {
-            // Execute request
-            DeleteTxResDTO tx = processor.deleteTransactions(timestamp);
-            // Retrieve value
-            deleted = tx.getDeletedTransactions();
-            // Flag it
-            res = OK;
-            // Log it
-            log.debug("[{}] - Deleted transactions: {}", TITLE, deleted);
-        }catch (Exception ex) {
-            log.error(
-                format("[%s] Unable to delete transactions", TITLE),
-                ex
-            );
+    // minimal retry helper
+    private <T> T retry(String label, Supplier<T> op) {
+        Exception lastEx = null;
+        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                T res = op.get();
+                if (res != null)
+                    return res;
+            } catch (Exception ex) {
+                lastEx = ex;
+            }
+            backoff(label, attempt);
         }
-        return res;
+        if (lastEx != null)
+            // manage errors here,
+            // consider putting unresolved operations into a staging area
+            throw new RuntimeException(lastEx);
+        return null;
     }
+
+    private void backoff(String label, int attempt) {
+        long sleep = BASE_BACKOFF_MS << (attempt - 1);
+        log.warn("[TX] {} attempt {} failed, retrying in {} ms", label, attempt, sleep);
+        try {
+            TimeUnit.MILLISECONDS.sleep(sleep);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /** Small result holder for per-region reporting. */
+    public static final class RegionResult {
+        private final SubjectOrganizationEnum region;
+        private final long processed;
+        private final long deleted;
+        private final Throwable error;
+
+        RegionResult(SubjectOrganizationEnum region, long processed, long deleted, Throwable error) {
+            this.region = region;
+            this.processed = processed;
+            this.deleted = deleted;
+            this.error = error;
+        }
+
+        public SubjectOrganizationEnum region() {
+            return region;
+        }
+
+        public long processed() {
+            return processed;
+        }
+
+        public long deleted() {
+            return deleted;
+        }
+
+        public Throwable error() {
+            return error;
+        }
+
+        public String code() {
+            return region.getCode();
+        }
+
+        public String name() {
+            return region.getDisplay();
+        }
+    }
+
 }
