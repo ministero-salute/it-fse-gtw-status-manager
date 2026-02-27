@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -130,16 +131,21 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 		/*
 		 * Optimized MongoDB aggregation query that finds workflowInstanceId with:
 		 * - At least one SEND_TO_UAR SUCCESS event older than threshold
-		 * - NO UAR_FINAL_STATUS or EDS_WORKFLOW_COMPLETED events
+		 * - NO UAR_FINAL_STATUS  events
 		 * This is much more efficient than multiple queries + filtering in memory
 		 */
 
 		// Step 1: Match all events for potential workflow IDs
 		org.springframework.data.mongodb.core.aggregation.MatchOperation matchAll = org.springframework.data.mongodb.core.aggregation.Aggregation
-				.match(	        // SEND_TO_UAR SUCCESS older than threshold
+				.match(
+						new Criteria().orOperator(
+								// SEND_TO_UAR SUCCESS older than threshold
 								Criteria.where(TransactionDataETY.FIELD_EVENT_TYPE).is("SEND_TO_UAR")
 										.and(TransactionDataETY.FIELD_EVENT_STATUS).is("SUCCESS")
-										.and(TransactionDataETY.FIELD_EVENT_DATE).lt(thresholdDate));
+										.and(TransactionDataETY.FIELD_EVENT_DATE).lt(thresholdDate),
+								// OR any final status event
+								Criteria.where(TransactionDataETY.FIELD_EVENT_TYPE).in(
+										TransactionDataETY.FHIR_TYPE_UAR)));
 
 		// Step 2: Group by workflowInstanceId and collect event types
 		org.springframework.data.mongodb.core.aggregation.GroupOperation groupByWif = org.springframework.data.mongodb.core.aggregation.Aggregation
@@ -152,7 +158,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 		org.springframework.data.mongodb.core.aggregation.MatchOperation matchPending = org.springframework.data.mongodb.core.aggregation.Aggregation
 				.match(
 						Criteria.where("eventTypes").all("SEND_TO_UAR")
-								.nin(TransactionDataETY.FHIR_TYPE_UAR, "EDS_WORKFLOW_COMPLETED"));
+								.nin(TransactionDataETY.FHIR_TYPE_UAR));
 
 		// Step 4: Project to return only needed fields
 		org.springframework.data.mongodb.core.aggregation.ProjectionOperation project = org.springframework.data.mongodb.core.aggregation.Aggregation
@@ -171,7 +177,8 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 						groupByWif,
 						matchPending,
 						project,
-						limit);
+						limit)
+                .withOptions(Aggregation.newAggregationOptions().allowDiskUse(true).build());
 
 		org.springframework.data.mongodb.core.aggregation.AggregationResults<TransactionDataETY> results = mongo
 				.aggregate(aggregation, TransactionDataETY.class, TransactionDataETY.class);

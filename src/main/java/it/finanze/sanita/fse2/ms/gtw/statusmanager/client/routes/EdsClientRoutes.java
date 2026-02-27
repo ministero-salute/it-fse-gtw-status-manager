@@ -9,31 +9,36 @@
  * 
  * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler;
+package it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.executors.impl.TxExecutor;
-import lombok.extern.slf4j.Slf4j;
-import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.MicroservicesURLCFG;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import static it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.base.ClientRoutes.Eds.*;
 
-@Slf4j
 @Component
-@ConditionalOnExpression("'${scheduler.tx-scheduler}'!='-'")
-public class TxScheduler {
+public final class EdsClientRoutes {
 
     @Autowired
-    private TxExecutor tx;
+    private MicroservicesURLCFG microservices;
 
-    @Scheduled(cron = "${scheduler.tx-scheduler}")
-    @SchedulerLock(name = "invokeTxScheduler", lockAtMostFor = "60m")
-    public void action() {
-        log.info("[{}] Starting updating process");
-        tx.run();
-        log.debug("[{}] Ending updating process");
+    public UriComponentsBuilder base() {
+        return UriComponentsBuilder.fromHttpUrl(microservices.getEdsClientHost());
     }
 
+    public String identifier() {
+        return IDENTIFIER;
+    }
+
+    public String microservice() {
+        return IDENTIFIER_MS;
+    }
+
+    public String getIngestionStatus(String workflowInstanceId) {
+        return base()
+                .pathSegment(API_VERSION, STATUS_PATH, workflowInstanceId)
+                .build().toUriString();
+    }
 }
