@@ -31,5 +31,11 @@ public class MicroservicesURLCFG {
 	 */
 	@Value("${ms.url.gtw-config}")
 	private String configHost;
+	
+	/**
+	 * EDS client host.
+	 */
+	@Value("${ms.url.eds-client}")
+	private String edsClientHost;
 
 }

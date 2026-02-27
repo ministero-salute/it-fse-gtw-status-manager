@@ -27,4 +27,15 @@ public interface ITransactionEventsRepo {
     TransactionDataETY saveEdsEvent(String workflowInstanceId, Date date, String type, String status );
 
     int saveEventsFhir(List<String> wif, Date timestamp, Date expiration)throws OperationException;
+
+    /**
+     * Find pending UAR transactions that need status check.
+     * Returns transactions with eventType="SEND_TO_UAR", eventStatus="SUCCESS"
+     * and eventDate older than the threshold date, without final status.
+     *
+     * @param thresholdDate The date threshold for filtering old transactions
+     * @param maxResults Maximum number of results to return
+     * @return List of TransactionDataETY entities matching the criteria
+     */
+    List<TransactionDataETY> findPendingUarTransactions(Date thresholdDate, int maxResults);
 }

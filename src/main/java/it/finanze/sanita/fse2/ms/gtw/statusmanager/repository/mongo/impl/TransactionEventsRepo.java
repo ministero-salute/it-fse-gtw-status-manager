@@ -125,4 +125,58 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 		return issuer.contains("#") ? issuer.split("#")[0] : issuer;
 	}
 
+	@Override
+	public List<TransactionDataETY> findPendingUarTransactions(Date thresholdDate, int maxResults) {
+		/*
+		 * Optimized MongoDB aggregation query that finds workflowInstanceId with:
+		 * - At least one SEND_TO_UAR SUCCESS event older than threshold
+		 * - NO UAR_FINAL_STATUS or EDS_WORKFLOW_COMPLETED events
+		 * This is much more efficient than multiple queries + filtering in memory
+		 */
+
+		// Step 1: Match all events for potential workflow IDs
+		org.springframework.data.mongodb.core.aggregation.MatchOperation matchAll = org.springframework.data.mongodb.core.aggregation.Aggregation
+				.match(	        // SEND_TO_UAR SUCCESS older than threshold
+								Criteria.where(TransactionDataETY.FIELD_EVENT_TYPE).is("SEND_TO_UAR")
+										.and(TransactionDataETY.FIELD_EVENT_STATUS).is("SUCCESS")
+										.and(TransactionDataETY.FIELD_EVENT_DATE).lt(thresholdDate));
+
+		// Step 2: Group by workflowInstanceId and collect event types
+		org.springframework.data.mongodb.core.aggregation.GroupOperation groupByWif = org.springframework.data.mongodb.core.aggregation.Aggregation
+				.group(TransactionDataETY.FIELD_WIF)
+				.first(TransactionDataETY.FIELD_WIF).as("workflowInstanceId")
+				.first(TransactionDataETY.FIELD_EVENT_DATE).as("eventDate")
+				.addToSet(TransactionDataETY.FIELD_EVENT_TYPE).as("eventTypes");
+
+		// Step 3: Match only groups that have SEND_TO_UAR but NOT final status
+		org.springframework.data.mongodb.core.aggregation.MatchOperation matchPending = org.springframework.data.mongodb.core.aggregation.Aggregation
+				.match(
+						Criteria.where("eventTypes").all("SEND_TO_UAR")
+								.nin(TransactionDataETY.FHIR_TYPE_UAR, "EDS_WORKFLOW_COMPLETED"));
+
+		// Step 4: Project to return only needed fields
+		org.springframework.data.mongodb.core.aggregation.ProjectionOperation project = org.springframework.data.mongodb.core.aggregation.Aggregation
+				.project()
+				.and("workflowInstanceId").as(TransactionDataETY.FIELD_WIF)
+				.and("eventDate").as(TransactionDataETY.FIELD_EVENT_DATE);
+
+		// Step 5: Limit results to prevent processing too many transactions at once
+		org.springframework.data.mongodb.core.aggregation.LimitOperation limit = org.springframework.data.mongodb.core.aggregation.Aggregation
+				.limit(maxResults);
+
+		// Execute aggregation
+		org.springframework.data.mongodb.core.aggregation.Aggregation aggregation = org.springframework.data.mongodb.core.aggregation.Aggregation
+				.newAggregation(
+						matchAll,
+						groupByWif,
+						matchPending,
+						project,
+						limit);
+
+		org.springframework.data.mongodb.core.aggregation.AggregationResults<TransactionDataETY> results = mongo
+				.aggregate(aggregation, TransactionDataETY.class, TransactionDataETY.class);
+
+		return results.getMappedResults();
+	}
+
 }
