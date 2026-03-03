@@ -131,7 +131,8 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 		/*
 		 * Optimized MongoDB aggregation query that finds workflowInstanceId with:
 		 * - At least one SEND_TO_UAR SUCCESS event older than threshold
-		 * - NO UAR_FINAL_STATUS  events
+		 * - NO UAR_FINAL_STATUS events
+		 * - NO pullStatusOutcome="blocked" (already failed transactions)
 		 * This is much more efficient than multiple queries + filtering in memory
 		 */
 
@@ -139,10 +140,11 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 		org.springframework.data.mongodb.core.aggregation.MatchOperation matchAll = org.springframework.data.mongodb.core.aggregation.Aggregation
 				.match(
 						new Criteria().orOperator(
-								// SEND_TO_UAR SUCCESS older than threshold
+								// SEND_TO_UAR SUCCESS older than threshold WITHOUT pullStatusOutcome="blocked"
 								Criteria.where(TransactionDataETY.FIELD_EVENT_TYPE).is("SEND_TO_UAR")
 										.and(TransactionDataETY.FIELD_EVENT_STATUS).is("SUCCESS")
-										.and(TransactionDataETY.FIELD_EVENT_DATE).lt(thresholdDate),
+										.and(TransactionDataETY.FIELD_EVENT_DATE).lt(thresholdDate)
+										.and(TransactionDataETY.FIELD_PULL_STATUS_OUTCOME).ne("BLOCKED"),
 								// OR any final status event
 								Criteria.where(TransactionDataETY.FIELD_EVENT_TYPE).in(
 										TransactionDataETY.FHIR_TYPE_UAR)));
@@ -184,6 +186,41 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 				.aggregate(aggregation, TransactionDataETY.class, TransactionDataETY.class);
 
 		return results.getMappedResults();
+	}
+
+	@Override
+	public boolean updatePullStatusOutcome(String workflowInstanceId, String outcome) {
+		try {
+			// Query to find the SEND_TO_UAR SUCCESS event for this workflow
+			Query query = new Query();
+			query.addCriteria(
+					Criteria.where(TransactionDataETY.FIELD_WIF).is(workflowInstanceId)
+							.and(TransactionDataETY.FIELD_EVENT_TYPE).is("SEND_TO_UAR")
+							.and(TransactionDataETY.FIELD_EVENT_STATUS).is("SUCCESS"));
+
+			// Update to set the pullStatusOutcome field
+			Update update = new Update();
+			update.set(TransactionDataETY.FIELD_PULL_STATUS_OUTCOME, outcome);
+
+			// Execute update
+			var result = mongo.updateFirst(query, update, TransactionDataETY.class);
+
+			boolean success = result.getModifiedCount() > 0;
+			if (success) {
+				log.info("[REPO] Updated pullStatusOutcome to '{}' for workflowInstanceId: {}",
+						outcome, workflowInstanceId);
+			} else {
+				log.warn("[REPO] No SEND_TO_UAR event found to update for workflowInstanceId: {}",
+						workflowInstanceId);
+			}
+
+			return success;
+
+		} catch (MongoException ex) {
+			log.error("[REPO] Error updating pullStatusOutcome for workflowInstanceId: {}",
+					workflowInstanceId, ex);
+			return false;
+		}
 	}
 
 }

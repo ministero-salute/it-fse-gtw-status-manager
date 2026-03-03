@@ -36,6 +36,7 @@ public class TransactionDataETY {
     public static final String FIELD_EVENT_STATUS = "eventStatus";
     public static final String FIELD_EXPIRING_DATE = "expiring_date";
     public static final String FIELD_EXTRA = "extra";
+    public static final String FIELD_PULL_STATUS_OUTCOME = "pullStatusOutcome";
     
     @Id
     private String id;
@@ -51,6 +52,8 @@ public class TransactionDataETY {
     private Date expiringDate;
     @Field(name = FIELD_EXTRA)
     private String extra;
+    @Field(name = FIELD_PULL_STATUS_OUTCOME)
+    private String pullStatusOutcome;
     
 
     public static TransactionDataETY asSuccess(String wif, Date date, Date expiringDate) {

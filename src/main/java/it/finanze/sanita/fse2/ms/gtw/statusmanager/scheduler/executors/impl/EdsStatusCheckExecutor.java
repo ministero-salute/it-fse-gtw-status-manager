@@ -13,6 +13,8 @@ package it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.executors.impl;
 
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IEdsClient;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.eds.GetIngestionStatusResDTO;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.RemoteServiceNotAvailableException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity.TransactionDataETY;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.ITransactionEventsRepo;
 import lombok.extern.slf4j.Slf4j;
@@ -99,7 +101,7 @@ public class EdsStatusCheckExecutor {
      */
     private boolean processTransaction(TransactionDataETY transaction) {
         String workflowInstanceId = transaction.getWorkflowInstanceId();
-        log.debug("[EDS-STATUS-CHECK] Processing transaction: workflowInstanceId={}, eventDate={}", 
+        log.debug("[EDS-STATUS-CHECK] Processing transaction: workflowInstanceId={}, eventDate={}",
                 workflowInstanceId, transaction.getDate());
 
         try {
@@ -114,7 +116,7 @@ public class EdsStatusCheckExecutor {
                 return false;
             }
 
-            log.info("[EDS-STATUS-CHECK] Received status from EDS: workflowInstanceId={}, status={}, type={}", 
+            log.info("[EDS-STATUS-CHECK] Received status from EDS: workflowInstanceId={}, status={}, type={}",
                     workflowInstanceId, statusResponse.getStatus(), statusResponse.getType());
 
             // Save final status event
@@ -125,15 +127,69 @@ public class EdsStatusCheckExecutor {
                     statusResponse.getStatus()
             );
 
-            log.info("[EDS-STATUS-CHECK] Successfully updated transaction status: workflowInstanceId={}, finalStatus={}", 
+            log.info(
+                    "[EDS-STATUS-CHECK] Successfully updated transaction status: workflowInstanceId={}, finalStatus={}",
                     workflowInstanceId, statusResponse.getStatus());
 
             return true;
 
-        } catch (Exception ex) {
-            log.error("[EDS-STATUS-CHECK] Failed to process transaction: workflowInstanceId={}", 
-                    workflowInstanceId, ex);
+        } catch (RemoteServiceNotAvailableException ex) {
+            // Communication error after all retries exhausted
+            log.error("[EDS-STATUS-CHECK] Communication failure after {} retries for workflowInstanceId: {}",
+                    MAX_RETRIES, workflowInstanceId, ex);
+
+            // Mark transaction as blocked in database
+            markTransactionAsBlocked(workflowInstanceId, "Communication failure after retries");
             return false;
+
+        } catch (BusinessException ex) {
+            // Non-retryable business/validation error
+            log.error("[EDS-STATUS-CHECK] Non-retryable error for workflowInstanceId: {}",
+                    workflowInstanceId, ex);
+
+            // Mark transaction as blocked in database
+            markTransactionAsBlocked(workflowInstanceId, "Non-retryable business error");
+            return false;
+
+        } catch (Exception ex) {
+            // Unexpected error
+            log.error("[EDS-STATUS-CHECK] Unexpected error processing transaction: workflowInstanceId={}",
+                    workflowInstanceId, ex);
+
+            // Mark transaction as blocked in database
+            markTransactionAsBlocked(workflowInstanceId, "Unexpected error");
+            return false;
+        }
+    }
+
+    /**
+     * Mark a transaction as blocked by updating the pullStatusOutcome field.
+     * This is called when EDS status check fails due to communication errors or
+     * non-retryable errors.
+     *
+     * @param workflowInstanceId The workflow instance identifier
+     * @param reason             The reason for blocking (for logging purposes)
+     */
+    private void markTransactionAsBlocked(String workflowInstanceId, String reason) {
+        try {
+            log.info("[EDS-STATUS-CHECK] Marking transaction as blocked: workflowInstanceId={}, reason={}",
+                    workflowInstanceId, reason);
+
+            boolean updated = transactionRepo.updatePullStatusOutcome(workflowInstanceId, "BLOCKED");
+
+            if (updated) {
+                log.info("[EDS-STATUS-CHECK] Successfully marked transaction as blocked: workflowInstanceId={}",
+                        workflowInstanceId);
+            } else {
+                log.warn(
+                        "[EDS-STATUS-CHECK] Failed to mark transaction as blocked (no matching event found): workflowInstanceId={}",
+                        workflowInstanceId);
+            }
+
+        } catch (Exception ex) {
+            log.error("[EDS-STATUS-CHECK] Error marking transaction as blocked: workflowInstanceId={}",
+                    workflowInstanceId, ex);
+            // Don't rethrow - this is a best-effort operation
         }
     }
 
@@ -148,7 +204,17 @@ public class EdsStatusCheckExecutor {
     }
 
     /**
-     * Retry helper with exponential backoff
+     * Retry helper with exponential backoff that only retries communication errors.
+     * Non-retryable errors (business logic, validation, etc.) fail immediately.
+     *
+     * @param <T>       The return type of the operation
+     * @param label     Descriptive label for logging purposes
+     * @param operation The operation to retry
+     * @return The result of the successful operation
+     * @throws BusinessException                  if operation fails with
+     *                                            non-retryable error
+     * @throws RemoteServiceNotAvailableException if all retry attempts fail for
+     *                                            communication errors
      */
     private <T> T retry(String label, Supplier<T> operation) {
         Exception lastException = null;
@@ -156,39 +222,176 @@ public class EdsStatusCheckExecutor {
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
                 T result = operation.get();
-                if (result != null) {
+
+                // Validate result is not null
+                if (result == null) {
+                    log.warn("[EDS-STATUS-CHECK] {} attempt {} returned null result", label, attempt);
+                    lastException = new IllegalStateException("Operation returned null result");
+
+                    // Null result is retryable (might be transient issue)
+                    if (attempt < MAX_RETRIES) {
+                        backoff(label, attempt);
+                        continue;
+                    }
+                } else {
+                    // Success - log recovery if needed
+                    if (attempt > 1) {
+                        log.info("[EDS-STATUS-CHECK] {} succeeded on attempt {}/{}", label, attempt, MAX_RETRIES);
+                    }
                     return result;
                 }
+
             } catch (Exception ex) {
                 lastException = ex;
-                log.warn("[EDS-STATUS-CHECK] {} attempt {} failed: {}", label, attempt, ex.getMessage());
-            }
-            
-            if (attempt < MAX_RETRIES) {
-                backoff(label, attempt);
+
+                // Classify exception to determine if retry is appropriate
+                if (isRetryableException(ex)) {
+                    log.warn("[EDS-STATUS-CHECK] {} attempt {}/{} failed with retryable error: {}",
+                            label, attempt, MAX_RETRIES, ex.getMessage());
+                    if (attempt < MAX_RETRIES) {
+                        backoff(label, attempt);
+                        continue;
+                    }
+                } else {
+                    // Non-retryable error - fail immediately without retry
+                    log.error("[EDS-STATUS-CHECK] {} failed with non-retryable error on attempt {}: {}",
+                            label, attempt, ex.getMessage(), ex);
+                    throw new BusinessException(
+                            String.format("Operation '%s' failed with non-retryable error", label),
+                            ex);
+                }
             }
         }
-        
-        if (lastException != null) {
-            log.error("[EDS-STATUS-CHECK] {} failed after {} attempts", label, MAX_RETRIES, lastException);
-            throw new RuntimeException("Failed after " + MAX_RETRIES + " attempts", lastException);
-        }
-        
-        return null;
+
+        // All retries exhausted for communication errors
+        String errorMsg = String.format(
+                "Operation '%s' failed after %d retry attempts due to communication errors",
+                label, MAX_RETRIES);
+        log.error("[EDS-STATUS-CHECK] {}", errorMsg, lastException);
+        throw new RemoteServiceNotAvailableException(errorMsg, lastException);
     }
 
     /**
-     * Exponential backoff between retries
+     * Determines if an exception is retryable (communication/transient errors).
+     *
+     * Retryable exceptions include:
+     * - Network/connection errors (IOException, SocketException, etc.)
+     * - HTTP client errors (ResourceAccessException, RestClientException)
+     * - Timeout exceptions
+     * - Service unavailable (5xx errors)
+     *
+     * Non-retryable exceptions include:
+     * - Business logic errors (BusinessException, IllegalArgumentException)
+     * - Validation errors (4xx client errors except 408, 429)
+     * - Authentication/authorization errors (401, 403)
+     * - Not found errors (404)
+     *
+     * @param ex The exception to classify
+     * @return true if the exception represents a retryable communication error
+     */
+    private boolean isRetryableException(Exception ex) {
+        // Already classified as remote service issue
+        if (ex instanceof RemoteServiceNotAvailableException) {
+            return true;
+        }
+
+        // Business exceptions should not be retried
+        if (ex instanceof BusinessException) {
+            return false;
+        }
+
+        // Check for Spring RestTemplate exceptions
+        String exceptionClass = ex.getClass().getName();
+
+        // Network/IO errors - retryable
+        if (exceptionClass.contains("IOException") ||
+                exceptionClass.contains("SocketException") ||
+                exceptionClass.contains("SocketTimeoutException") ||
+                exceptionClass.contains("ConnectException") ||
+                exceptionClass.contains("UnknownHostException")) {
+            return true;
+        }
+
+        // Spring RestTemplate communication errors - retryable
+        if (exceptionClass.contains("ResourceAccessException") ||
+                exceptionClass.contains("RestClientException")) {
+
+            // Check if it's an HTTP client error that should not be retried
+            String message = ex.getMessage() != null ? ex.getMessage().toLowerCase() : "";
+
+            // 4xx errors (except 408 Request Timeout and 429 Too Many Requests) are not
+            // retryable
+            if (message.contains("400 bad request") ||
+                    message.contains("401 unauthorized") ||
+                    message.contains("403 forbidden") ||
+                    message.contains("404 not found") ||
+                    message.contains("405 method not allowed") ||
+                    message.contains("406 not acceptable") ||
+                    message.contains("409 conflict") ||
+                    message.contains("410 gone") ||
+                    message.contains("422 unprocessable entity")) {
+                return false;
+            }
+
+            // 408 Request Timeout and 429 Too Many Requests are retryable
+            if (message.contains("408 request timeout") ||
+                    message.contains("429 too many requests")) {
+                return true;
+            }
+
+            // 5xx server errors are retryable
+            if (message.contains("500 internal server error") ||
+                    message.contains("502 bad gateway") ||
+                    message.contains("503 service unavailable") ||
+                    message.contains("504 gateway timeout")) {
+                return true;
+            }
+
+            // Default: treat other RestClient exceptions as retryable
+            return true;
+        }
+
+        // Timeout exceptions - retryable
+        if (exceptionClass.contains("TimeoutException")) {
+            return true;
+        }
+
+        // Circuit breaker exceptions - retryable
+        if (exceptionClass.contains("CircuitBreakerOpenException")) {
+            return true;
+        }
+        
+        // Default: non-retryable for unknown exceptions (fail-safe approach)
+        log.debug("[EDS-STATUS-CHECK] Classifying unknown exception as non-retryable: {}", exceptionClass);
+        return false;
+    }
+
+    /**
+     * Exponential backoff with jitter to prevent thundering herd.
+     * Jitter adds 0-25% random variation to prevent synchronized retries across
+     * multiple instances.
+     *
+     * @param label   Descriptive label for logging
+     * @param attempt Current attempt number (1-based)
      */
     private void backoff(String label, int attempt) {
-        long sleepMs = BASE_BACKOFF_MS << (attempt - 1);
-        log.debug("[EDS-STATUS-CHECK] {} backing off for {} ms before retry", label, sleepMs);
+        // Calculate exponential backoff: 2^(attempt-1) * BASE_BACKOFF_MS
+        long baseDelay = BASE_BACKOFF_MS << (attempt - 1);
+
+        // Add jitter (0-25% of base delay) to prevent synchronized retries
+        // This distributes retry load when multiple instances fail simultaneously
+        long jitter = (long) (baseDelay * 0.25 * Math.random());
+        long sleepMs = baseDelay + jitter;
+
+        log.debug("[EDS-STATUS-CHECK] {} backing off for {} ms before retry {}",
+                label, sleepMs, attempt + 1);
         
         try {
             TimeUnit.MILLISECONDS.sleep(sleepMs);
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
-            log.warn("[EDS-STATUS-CHECK] Backoff interrupted for {}", label);
+            log.warn("[EDS-STATUS-CHECK] Backoff interrupted for {} during attempt {}", label, attempt);
+            // Don't throw exception - let retry loop handle interruption
         }
     }
 }
