@@ -40,24 +40,6 @@ public class KafkaReceiverSRV implements IKafkaReceiverSRV {
 	    String key = cr.key();
 	    log.info("GTW LISTENER - Consuming transaction event - Message received with key {}", key != null ? key : "null");
 
-	    if (cr.headers() != null) {
-	        log.info("Kafka Message headers:");
-	        cr.headers().forEach(header -> {
-	            String value = header.value() != null ? new String(header.value()) : "null";
-	            log.info("Kafka Header Key: {}, Value: {}", header.key(), value);
-	        });
-	    } else {
-	        log.warn("Kafka headers are null.");
-	    }
-
-	    if (messageHeaders != null) {
-	        log.info("Spring MessageHeaders:");
-	        messageHeaders.forEach((headerKey, value) -> 
-	            log.info("Header Key: {}, Value: {}", headerKey, value));
-	    } else {
-	        log.warn("Spring MessageHeaders are null.");
-	    }
-
 	    try {
 	        abstractListener(cr);
 	    } catch (Exception e) {
@@ -66,12 +48,6 @@ public class KafkaReceiverSRV implements IKafkaReceiverSRV {
 	}
 
 	
-//	@Override
-//	@KafkaListener(topics = "#{'${kafka.statusmanager.eds.topic}'}",  clientIdPrefix = "#{'${kafka.client-eds-id}'}", containerFactory = "kafkaListenerDeadLetterContainerFactoryEds", autoStartup = "${event.topic.auto.start}", groupId = "#{'${kafka.consumer.group-id}'}")
-//	public void listenerEds(final ConsumerRecord<String, String> cr, final MessageHeaders messageHeaders) {
-//		log.info("EDS LISTENER - Consuming transaction event - Message received with key {}", cr.key());
-//		abstractListener(cr);
-//	}
 
 	private void abstractListener(ConsumerRecord<String, String> cr) {
 		try {

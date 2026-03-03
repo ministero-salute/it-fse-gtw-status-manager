@@ -28,7 +28,7 @@ public final class ProcessorClientRoutes {
     private MicroservicesURLCFG microservices;
 
     public UriComponentsBuilder base() {
-        return UriComponentsBuilder.fromHttpUrl(microservices.getProcessorHost());
+        return UriComponentsBuilder.fromUriString(microservices.getProcessorHost());
     }
 
     public String identifier() {
