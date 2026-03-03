@@ -9,10 +9,38 @@
  * 
  * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.actions.base;
+package it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.eds;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ActionRes;
+import java.util.Date;
 
-public interface IExecutableEDS {
-    ActionRes execute();
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * Response DTO containing the current status of an ingestion transaction from EDS broker.
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class GetIngestionStatusResDTO {
+
+    @JsonProperty("workflowInstanceId")
+    private String workflowInstanceId;
+
+    @JsonProperty("type")
+    private String type;
+
+    @JsonProperty("status")
+    private String status;
+
+    @JsonProperty("insertionDate")
+    private Date insertionDate;
+
+    @JsonProperty("rde")
+    private String rde;
 }

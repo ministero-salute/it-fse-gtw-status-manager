@@ -53,4 +53,16 @@ public final class ClientRoutes {
         public static final String PROPS_NAME_ISSUER_CF = "issuer-cf-cleaning";
         public static final String PROPS_NAME_SUBJECT = "subject-cleaning";
     }
+
+    @NoArgsConstructor(access = PRIVATE)
+    public static final class Eds {
+        // COMMON
+        public static final String IDENTIFIER = "[EDS]";
+        public static final String IDENTIFIER_MS = "eds-client";
+        // ENDPOINT
+        public static final String API_VERSION = "v1";
+        public static final String STATUS_PATH = "status";
+        // PATH PARAMS
+        public static final String WORKFLOW_INSTANCE_ID_PARAM = "workflowInstanceId";
+    }
 }

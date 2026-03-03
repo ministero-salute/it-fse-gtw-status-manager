@@ -9,11 +9,20 @@
  * 
  * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.actions.base;
+package it.finanze.sanita.fse2.ms.gtw.statusmanager.client;
 
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.enums.ActionRes;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.eds.GetIngestionStatusResDTO;
 
-@FunctionalInterface
-public interface IActionStepEDS {
-    ActionRes execute();
+/**
+ * Interface for EDS Client operations.
+ */
+public interface IEdsClient {
+
+    /**
+     * Retrieves the ingestion status for a given workflow instance ID from EDS broker.
+     *
+     * @param workflowInstanceId The workflow instance identifier
+     * @return GetIngestionStatusResDTO containing the status information
+     */
+    GetIngestionStatusResDTO getIngestionStatus(String workflowInstanceId);
 }
