@@ -15,10 +15,14 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IEdsClient;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.routes.EdsClientRoutes;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.eds.GetIngestionStatusResDTO;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.RemoteServiceNotAvailableException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -36,11 +40,21 @@ public class EdsClient implements IEdsClient {
         String endpoint = routes.getIngestionStatus(workflowInstanceId);
         log.debug(Constants.Logs.EXECUTE_REQUEST, routes.identifier(), endpoint);
 
-        // Execute request
-        ResponseEntity<GetIngestionStatusResDTO> response = client.getForEntity(
-                endpoint,
-                GetIngestionStatusResDTO.class);
+        try {
+            // Execute request
+            ResponseEntity<GetIngestionStatusResDTO> response = client.getForEntity(
+                    endpoint,
+                    GetIngestionStatusResDTO.class);
 
-        return response.getBody();
+            return response.getBody();
+        } catch (ResourceAccessException ex) {
+            // Network/connection issues - wrap in RemoteServiceNotAvailableException for retry logic
+            log.error("Remote service not available for workflowInstanceId: {}", workflowInstanceId, ex);
+            throw new RemoteServiceNotAvailableException("EDS service not available", ex);
+        } catch (RestClientException ex) {
+            // Other REST client errors - wrap in BusinessException
+            log.error("Error calling EDS service for workflowInstanceId: {}", workflowInstanceId, ex);
+            throw new BusinessException("Error retrieving ingestion status from EDS", ex);
+        }
     }
 }

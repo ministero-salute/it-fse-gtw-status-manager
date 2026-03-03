@@ -144,7 +144,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 								Criteria.where(TransactionDataETY.FIELD_EVENT_TYPE).is("SEND_TO_UAR")
 										.and(TransactionDataETY.FIELD_EVENT_STATUS).is("SUCCESS")
 										.and(TransactionDataETY.FIELD_EVENT_DATE).lt(thresholdDate)
-										.and(TransactionDataETY.FIELD_PULL_STATUS_OUTCOME).ne("BLOCKED"),
+										.and(TransactionDataETY.FIELD_PULL_STATUS_OUTCOME).ne(TransactionDataETY.PULL_STATUS_BLOCKED),
 								// OR any final status event
 								Criteria.where(TransactionDataETY.FIELD_EVENT_TYPE).in(
 										TransactionDataETY.FHIR_TYPE_UAR)));

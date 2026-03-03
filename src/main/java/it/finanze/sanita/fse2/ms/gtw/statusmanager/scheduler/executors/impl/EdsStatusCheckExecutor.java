@@ -22,11 +22,21 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
 
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -175,7 +185,8 @@ public class EdsStatusCheckExecutor {
             log.info("[EDS-STATUS-CHECK] Marking transaction as blocked: workflowInstanceId={}, reason={}",
                     workflowInstanceId, reason);
 
-            boolean updated = transactionRepo.updatePullStatusOutcome(workflowInstanceId, "BLOCKED");
+            boolean updated = transactionRepo.updatePullStatusOutcome(workflowInstanceId,
+                    TransactionDataETY.PULL_STATUS_BLOCKED);
 
             if (updated) {
                 log.info("[EDS-STATUS-CHECK] Successfully marked transaction as blocked: workflowInstanceId={}",
@@ -236,7 +247,7 @@ public class EdsStatusCheckExecutor {
                 } else {
                     // Success - log recovery if needed
                     if (attempt > 1) {
-                        log.info("[EDS-STATUS-CHECK] {} succeeded on attempt {}/{}", label, attempt, MAX_RETRIES);
+                        log.debug("[EDS-STATUS-CHECK] {} succeeded on attempt {}/{}", label, attempt, MAX_RETRIES);
                     }
                     return result;
                 }
@@ -300,69 +311,50 @@ public class EdsStatusCheckExecutor {
             return false;
         }
 
-        // Check for Spring RestTemplate exceptions
-        String exceptionClass = ex.getClass().getName();
-
         // Network/IO errors - retryable
-        if (exceptionClass.contains("IOException") ||
-                exceptionClass.contains("SocketException") ||
-                exceptionClass.contains("SocketTimeoutException") ||
-                exceptionClass.contains("ConnectException") ||
-                exceptionClass.contains("UnknownHostException")) {
+        if (ex instanceof IOException ||
+                ex instanceof SocketException ||
+                ex instanceof SocketTimeoutException ||
+                ex instanceof ConnectException ||
+                ex instanceof UnknownHostException) {
+            return true;
+        }
+
+        // HTTP client errors (4xx) - check status code
+        if (ex instanceof HttpClientErrorException) {
+            HttpClientErrorException httpEx = (HttpClientErrorException) ex;
+            int statusCode = httpEx.getStatusCode().value();
+            // 408 Request Timeout and 429 Too Many Requests are retryable
+            return statusCode == 408 || statusCode == 429;
+        }
+
+        // HTTP server errors (5xx) - retryable
+        if (ex instanceof HttpServerErrorException) {
             return true;
         }
 
         // Spring RestTemplate communication errors - retryable
-        if (exceptionClass.contains("ResourceAccessException") ||
-                exceptionClass.contains("RestClientException")) {
+        if (ex instanceof ResourceAccessException) {
+            return true;
+        }
 
-            // Check if it's an HTTP client error that should not be retried
-            String message = ex.getMessage() != null ? ex.getMessage().toLowerCase() : "";
-
-            // 4xx errors (except 408 Request Timeout and 429 Too Many Requests) are not
-            // retryable
-            if (message.contains("400 bad request") ||
-                    message.contains("401 unauthorized") ||
-                    message.contains("403 forbidden") ||
-                    message.contains("404 not found") ||
-                    message.contains("405 method not allowed") ||
-                    message.contains("406 not acceptable") ||
-                    message.contains("409 conflict") ||
-                    message.contains("410 gone") ||
-                    message.contains("422 unprocessable entity")) {
-                return false;
-            }
-
-            // 408 Request Timeout and 429 Too Many Requests are retryable
-            if (message.contains("408 request timeout") ||
-                    message.contains("429 too many requests")) {
-                return true;
-            }
-
-            // 5xx server errors are retryable
-            if (message.contains("500 internal server error") ||
-                    message.contains("502 bad gateway") ||
-                    message.contains("503 service unavailable") ||
-                    message.contains("504 gateway timeout")) {
-                return true;
-            }
-
-            // Default: treat other RestClient exceptions as retryable
+        // Other RestClient exceptions - retryable
+        if (ex instanceof RestClientException) {
             return true;
         }
 
         // Timeout exceptions - retryable
-        if (exceptionClass.contains("TimeoutException")) {
+        if (ex instanceof TimeoutException) {
             return true;
         }
 
-        // Circuit breaker exceptions - retryable
-        if (exceptionClass.contains("CircuitBreakerOpenException")) {
+        // Circuit breaker exceptions - check by class name as a fallback
+        if (ex.getClass().getSimpleName().equals("CircuitBreakerOpenException")) {
             return true;
         }
         
         // Default: non-retryable for unknown exceptions (fail-safe approach)
-        log.debug("[EDS-STATUS-CHECK] Classifying unknown exception as non-retryable: {}", exceptionClass);
+        log.debug("[EDS-STATUS-CHECK] Classifying unknown exception as non-retryable: {}", ex.getClass().getName());
         return false;
     }
 

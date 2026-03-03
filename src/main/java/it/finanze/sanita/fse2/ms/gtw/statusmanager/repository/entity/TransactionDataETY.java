@@ -28,6 +28,7 @@ public class TransactionDataETY {
     private static final String FHIR_OUTCOME = "SUCCESS";
     private static final String FHIR_TYPE = "EDS_WORKFLOW";
     public static final String FHIR_TYPE_UAR = "UAR_FINAL_STATUS";
+    public static final String PULL_STATUS_BLOCKED = "BLOCKED";
 
     public static final String FIELD_ID = "_id";
     public static final String FIELD_WIF = "workflow_instance_id";

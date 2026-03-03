@@ -32,7 +32,7 @@ public interface ITransactionEventsRepo {
      * Find pending UAR transactions that need status check.
      * Returns transactions with eventType="SEND_TO_UAR", eventStatus="SUCCESS"
      * and eventDate older than the threshold date, without final status,
-     * and excluding transactions already marked as blocked (pullStatusOutcome="blocked").
+     * and excluding transactions already marked as blocked (pullStatusOutcome="BLOCKED").
      *
      * @param thresholdDate The date threshold for filtering old transactions
      * @param maxResults Maximum number of results to return
@@ -45,7 +45,7 @@ public interface ITransactionEventsRepo {
      * This marks the transaction as blocked when EDS status check fails.
      *
      * @param workflowInstanceId The workflow instance identifier
-     * @param outcome The outcome value (e.g., "blocked")
+     * @param outcome The outcome value (e.g., "BLOCKED")
      * @return true if the update was successful, false otherwise
      */
     boolean updatePullStatusOutcome(String workflowInstanceId, String outcome);
