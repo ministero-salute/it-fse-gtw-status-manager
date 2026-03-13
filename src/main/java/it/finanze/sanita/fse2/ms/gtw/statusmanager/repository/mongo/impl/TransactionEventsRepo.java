@@ -21,6 +21,7 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.DateUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -50,7 +51,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	private IConfigSRV configSRV;
 
 	@Override
-	public void saveEvent(String workflowInstanceId, String json) {
+	public TransactionDataETY saveEvent(String workflowInstanceId, String json) {
 		try {
 			Document doc = Document.parse(json);
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(PATTERN);
@@ -72,10 +73,74 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 			doc.put(EXPIRING_DATE, expiringDate);
 			clearIssuerObject(doc);
 			clearSubjectObject(doc);
-			mongo.upsert(query, Update.fromDocument(doc, "_id"), TransactionDataETY.class);
+
+			// Build update with explicit $set operators
+			Update update = new Update()
+					.set(EVENT_DATE, eventDate)
+					.set(WORKFLOW_INSTANCE_ID, workflowInstanceId)
+					.set(EVENT_TYPE, eventType)
+					.set(EVENT_STATUS, eventStatus)
+					.set(EXPIRING_DATE, expiringDate);
+
+			// Add optional fields if present in document
+			if (doc.containsKey(TRACE_ID)) {
+				update.set(TRACE_ID, doc.get(TRACE_ID));
+			}
+			if (doc.containsKey(EVENT_ISSUER)) {
+				update.set(EVENT_ISSUER, doc.get(EVENT_ISSUER));
+			}
+			if (doc.containsKey(EVENT_SUBJECT)) {
+				update.set(EVENT_SUBJECT, doc.get(EVENT_SUBJECT));
+			}
+			if (doc.containsKey("extra")) {
+				update.set("extra", doc.get("extra"));
+			}
+
+			TransactionDataETY entity = mongo.findAndModify(
+					query,
+					update,
+					FindAndModifyOptions.options().upsert(true).returnNew(true),
+					TransactionDataETY.class);
+
+			return entity;
 		} catch(Exception ex){
 			log.error("Error while save event : " , ex);
 			throw new BusinessException("Error while save event : " , ex);
+		}
+	}
+
+	@Override
+	public TransactionDataETY saveEvent(String workflowInstanceId, Date eventDate, String eventType, String eventStatus,
+			String traceId, String issuer, String subject) {
+		try {
+			TransactionDataETY entity = new TransactionDataETY();
+			entity.setWorkflowInstanceId(workflowInstanceId);
+			entity.setDate(eventDate);
+			entity.setType(eventType);
+			entity.setStatus(eventStatus);
+
+			if (traceId != null) {
+				entity.setTraceId(traceId);
+			}
+
+			if (issuer != null) {
+				if (configSRV.isCfOnIssuerNotAllowed()) {
+					entity.setIssuer(clearIssuer(issuer));
+				} else {
+					entity.setIssuer(issuer);
+				}
+			}
+
+			if (subject != null && !configSRV.isSubjectNotAllowed()) {
+				entity.setSubject(subject);
+			}
+
+			Date expiringDate = DateUtility.addDay(new Date(), configSRV.getExpirationDate());
+			entity.setExpiringDate(expiringDate);
+			return mongo.insert(entity);
+		} catch (Exception ex) {
+			log.error("Error while save event : ", ex);
+			throw new BusinessException("Error while save event : ", ex);
 		}
 	}
 
@@ -224,3 +289,4 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	}
 
 }
+

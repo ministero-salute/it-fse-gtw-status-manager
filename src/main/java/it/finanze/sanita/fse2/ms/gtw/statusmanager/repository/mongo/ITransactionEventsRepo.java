@@ -22,7 +22,10 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity.Transaction
  */
 public interface ITransactionEventsRepo {
 
-    void saveEvent(String json, String workflowInstanceId);
+    TransactionDataETY saveEvent(String workflowInstanceId, String json);
+
+    TransactionDataETY saveEvent(String workflowInstanceId, Date eventDate, String eventType, String eventStatus,
+            String traceId, String issuer, String subject);
 
     TransactionDataETY saveEdsEvent(String workflowInstanceId, Date date, String type, String status );
 
