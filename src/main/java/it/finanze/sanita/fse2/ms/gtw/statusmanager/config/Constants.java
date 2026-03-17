@@ -38,9 +38,13 @@ public final class Constants {
 		public static final String EVENT_ISSUER = "issuer";
 		public static final String EVENT_SUBJECT = "subject";
 		public static final String EXPIRING_DATE = "expiring_date";
+		public static final String EVENT_TYPE = "eventType";
+		public static final String IDENTIFICATIVO_DOCUMENTO = "identificativoDocumento";
+		public static final String TIPO_ATTIVITA = "tipoAttivita";
+		public static final String ORGANIZZAZIONE = "organizzazione";
+		public static final String MICROSERVICE_NAME = "microserviceName";
 
 		private Fields() {}
-		public static final String EVENT_TYPE = "eventType";
 	}
  
 	public static final class Profile {

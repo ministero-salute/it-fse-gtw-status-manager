@@ -41,6 +41,10 @@ public class TransactionDataETY {
     public static final String FIELD_TRACE_ID = "traceId";
     public static final String FIELD_ISSUER = "issuer";
     public static final String FIELD_SUBJECT = "subject";
+    public static final String FIELD_IDENTIFICATIVO_DOCUMENTO = "identificativoDocumento";
+    public static final String FIELD_TIPO_ATTIVITA = "tipoAttivita";
+    public static final String FIELD_ORGANIZZAZIONE = "organizzazione";
+    public static final String FIELD_MICROSERVICE_NAME = "microserviceName";
     
     @Id
     private String id;
@@ -64,6 +68,14 @@ public class TransactionDataETY {
     private String issuer;
     @Field(name = FIELD_SUBJECT)
     private String subject;
+    @Field(name = FIELD_IDENTIFICATIVO_DOCUMENTO)
+    private String identificativoDocumento;
+    @Field(name = FIELD_TIPO_ATTIVITA)
+    private String tipoAttivita;
+    @Field(name = FIELD_ORGANIZZAZIONE)
+    private String organizzazione;
+    @Field(name = FIELD_MICROSERVICE_NAME)
+    private String microserviceName;
     
 
     public static TransactionDataETY asSuccess(String wif, Date date, Date expiringDate) {

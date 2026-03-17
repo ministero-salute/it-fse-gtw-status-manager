@@ -95,6 +95,18 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 			if (doc.containsKey("extra")) {
 				update.set("extra", doc.get("extra"));
 			}
+			if (doc.containsKey(IDENTIFICATIVO_DOCUMENTO)) {
+				update.set(IDENTIFICATIVO_DOCUMENTO, doc.get(IDENTIFICATIVO_DOCUMENTO));
+			}
+			if (doc.containsKey(TIPO_ATTIVITA)) {
+				update.set(TIPO_ATTIVITA, doc.get(TIPO_ATTIVITA));
+			}
+			if (doc.containsKey(ORGANIZZAZIONE)) {
+				update.set(ORGANIZZAZIONE, doc.get(ORGANIZZAZIONE));
+			}
+			if (doc.containsKey(MICROSERVICE_NAME)) {
+				update.set(MICROSERVICE_NAME, doc.get(MICROSERVICE_NAME));
+			}
 
 			TransactionDataETY entity = mongo.findAndModify(
 					query,
