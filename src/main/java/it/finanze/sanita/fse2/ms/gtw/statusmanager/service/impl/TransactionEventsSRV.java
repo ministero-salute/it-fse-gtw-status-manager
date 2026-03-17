@@ -159,10 +159,9 @@ public class TransactionEventsSRV extends AbstractService implements ITransactio
             return false;
         }
 
-        return ("SEND_TO_INI".equals(type) && "BLOCKED".equals(status)) ||
-                ("SEND_TO_UAR".equals(type) && "BLOCKED".equals(status)) ||
+        return ("SEND_TO_INI".equals(type) && "BLOCKING_ERROR".equals(status)) ||
+                ("SEND_TO_UAR".equals(type) && "BLOCKING_ERROR".equals(status)) ||
                 ("UAR_FINAL_STATUS".equals(type) && "SUCCESS".equals(status)) ||
-                ("UAR_FINAL_STATUS".equals(type) && "BLOCKED".equals(status)) ||
-                ("PUBLISH".equals(type) && "BLOCKING_ERROR".equals(status));
+                ("UAR_FINAL_STATUS".equals(type) && "BLOCKING_ERROR".equals(status));
     }
 }
