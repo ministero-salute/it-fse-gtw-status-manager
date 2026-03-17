@@ -11,6 +11,7 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl;
 
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,16 +47,25 @@ public class TransactionEventsSRV extends AbstractService implements ITransactio
 
 	@Override
     public void saveEvent(final String workflowInstanceId, final String json) {
-    	try {
+        try {
             log.info("START - Save event for workflowInstanceId: {}", workflowInstanceId);
-            TransactionDataETY savedEntity = transactionEventsRepo.saveEvent(workflowInstanceId, json);
-            handleFinalStatusNotification(savedEntity);
-            log.info("END - Save event for workflowInstanceId: {}", workflowInstanceId);
-    	} catch(Exception ex) {
-            log.error("Error while saving event for workflowInstanceId: {}", workflowInstanceId, ex);
-    		throw new BusinessException(ex);
-    	}
-    }
+
+               // Parse JSON to extract eventType and eventStatus
+               Document doc = Document.parse(json);
+               String eventType = doc.getString("eventType");
+               String eventStatus = doc.getString("eventStatus");
+
+               transactionEventsRepo.saveEvent(workflowInstanceId, json);
+
+               // Call notification with parsed values
+               handleFinalStatusNotification(workflowInstanceId, eventType, eventStatus);
+
+               log.info("END - Save event for workflowInstanceId: {}", workflowInstanceId);
+           } catch (Exception ex) {
+               log.error("Error while saving event for workflowInstanceId: {}", workflowInstanceId, ex);
+               throw new BusinessException(ex);
+           }
+       }
 
     @Override
     public void saveEvent(CallbackTransactionDataRequestDTO request) {
@@ -126,6 +136,34 @@ public class TransactionEventsSRV extends AbstractService implements ITransactio
         } catch (Exception kafkaEx) {
             log.warn("Failed to send Touchpoint notification for workflowInstanceId: {}. Error: {}",
                     savedEntity.getWorkflowInstanceId(), kafkaEx.getMessage());
+        }
+    }
+
+    /**
+     * Handle final status notification to Touchpoint Regionale (overload for
+     * JSON-based events).
+     * Sends Kafka notification if the status is final, logs warning if notification
+     * fails.
+     *
+     * @param workflowInstanceId Workflow instance ID
+     * @param eventType          Event type
+     * @param eventStatus        Event status
+     */
+    private void handleFinalStatusNotification(String workflowInstanceId, String eventType, String eventStatus) {
+        if (!isFinalStatus(eventType, eventStatus)) {
+            log.debug("Status {} - {} is not final, skipping Touchpoint notification for workflowInstanceId: {}",
+                    eventType, eventStatus, workflowInstanceId);
+            return;
+        }
+
+        try {
+            // For JSON-based events, we use workflowInstanceId as both key and value
+            sendFinalStatusKafkaMessage(workflowInstanceId, workflowInstanceId);
+            log.info("Touchpoint notification sent successfully for workflowInstanceId: {} with final status: {} - {}",
+                    workflowInstanceId, eventType, eventStatus);
+        } catch (Exception kafkaEx) {
+            log.warn("Failed to send Touchpoint notification for workflowInstanceId: {}. Error: {}",
+                    workflowInstanceId, kafkaEx.getMessage());
         }
     }
 

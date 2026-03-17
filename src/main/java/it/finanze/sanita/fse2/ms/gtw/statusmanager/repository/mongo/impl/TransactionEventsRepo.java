@@ -50,76 +50,35 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	@Autowired
 	private IConfigSRV configSRV;
 
-	@Override
-	public TransactionDataETY saveEvent(String workflowInstanceId, String json) {
-		try {
-			Document doc = Document.parse(json);
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(PATTERN);
-			simpleDateFormat.setTimeZone(TimeZone.getDefault());
-			Date eventDate = simpleDateFormat.parse(doc.getString(EVENT_DATE));
-			doc.put(EVENT_DATE, eventDate);
-			doc.put(WORKFLOW_INSTANCE_ID, workflowInstanceId);
-			String eventType = doc.getString(EVENT_TYPE);
-			String eventStatus = doc.getString(EVENT_STATUS);
-			Query query = new Query();
-			if(!"UNKNOWN_WORKFLOW_ID".equals(workflowInstanceId)) {
-				query.addCriteria(Criteria.where(WORKFLOW_INSTANCE_ID).is(workflowInstanceId).
-						and(EVENT_TYPE).is(eventType).and(EVENT_STATUS).is(eventStatus));
-			} else {
-				query.addCriteria(Criteria.where(TRACE_ID).is(doc.getString(TRACE_ID)).
-						and(EVENT_TYPE).is(eventType).and(EVENT_STATUS).is(eventStatus));
-			}
-			Date expiringDate = DateUtility.addDay(new Date(), configSRV.getExpirationDate());
-			doc.put(EXPIRING_DATE, expiringDate);
-			clearIssuerObject(doc);
-			clearSubjectObject(doc);
-
-			// Build update with explicit $set operators
-			Update update = new Update()
-					.set(EVENT_DATE, eventDate)
-					.set(WORKFLOW_INSTANCE_ID, workflowInstanceId)
-					.set(EVENT_TYPE, eventType)
-					.set(EVENT_STATUS, eventStatus)
-					.set(EXPIRING_DATE, expiringDate);
-
-			// Add optional fields if present in document
-			if (doc.containsKey(TRACE_ID)) {
-				update.set(TRACE_ID, doc.get(TRACE_ID));
-			}
-			if (doc.containsKey(EVENT_ISSUER)) {
-				update.set(EVENT_ISSUER, doc.get(EVENT_ISSUER));
-			}
-			if (doc.containsKey(EVENT_SUBJECT)) {
-				update.set(EVENT_SUBJECT, doc.get(EVENT_SUBJECT));
-			}
-			if (doc.containsKey("extra")) {
-				update.set("extra", doc.get("extra"));
-			}
-			if (doc.containsKey(IDENTIFICATIVO_DOCUMENTO)) {
-				update.set(IDENTIFICATIVO_DOCUMENTO, doc.get(IDENTIFICATIVO_DOCUMENTO));
-			}
-			if (doc.containsKey(TIPO_ATTIVITA)) {
-				update.set(TIPO_ATTIVITA, doc.get(TIPO_ATTIVITA));
-			}
-			if (doc.containsKey(ORGANIZZAZIONE)) {
-				update.set(ORGANIZZAZIONE, doc.get(ORGANIZZAZIONE));
-			}
-			if (doc.containsKey(MICROSERVICE_NAME)) {
-				update.set(MICROSERVICE_NAME, doc.get(MICROSERVICE_NAME));
-			}
-
-			TransactionDataETY entity = mongo.findAndModify(
-					query,
-					update,
-					FindAndModifyOptions.options().upsert(true).returnNew(true),
-					TransactionDataETY.class);
-
-			return entity;
-		} catch(Exception ex){
-			log.error("Error while save event : " , ex);
-			throw new BusinessException("Error while save event : " , ex);
-		}
-	}
+    @Override
+    public void saveEvent(String workflowInstanceId, String json) {
+        try {
+            Document doc = Document.parse(json);
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(PATTERN);
+            simpleDateFormat.setTimeZone(TimeZone.getDefault());
+            Date eventDate = simpleDateFormat.parse(doc.getString(EVENT_DATE));
+            doc.put(EVENT_DATE, eventDate);
+            doc.put(WORKFLOW_INSTANCE_ID, workflowInstanceId);
+            String eventType = doc.getString(EVENT_TYPE);
+            String eventStatus = doc.getString(EVENT_STATUS);
+            Query query = new Query();
+            if(!"UNKNOWN_WORKFLOW_ID".equals(workflowInstanceId)) {
+                query.addCriteria(Criteria.where(WORKFLOW_INSTANCE_ID).is(workflowInstanceId).
+                        and(EVENT_TYPE).is(eventType).and(EVENT_STATUS).is(eventStatus));
+            } else {
+                query.addCriteria(Criteria.where(TRACE_ID).is(doc.getString(TRACE_ID)).
+                        and(EVENT_TYPE).is(eventType).and(EVENT_STATUS).is(eventStatus));
+            }
+            Date expiringDate = DateUtility.addDay(new Date(), configSRV.getExpirationDate());
+            doc.put(EXPIRING_DATE, expiringDate);
+            clearIssuerObject(doc);
+            clearSubjectObject(doc);
+            mongo.upsert(query, Update.fromDocument(doc, "_id"), TransactionDataETY.class);
+        } catch(Exception ex){
+            log.error("Error while save event : " , ex);
+            throw new BusinessException("Error while save event : " , ex);
+        }
+    }
 
 	@Override
 	public TransactionDataETY saveEvent(String workflowInstanceId, Date eventDate, String eventType, String eventStatus,
