@@ -45,6 +45,7 @@ public class TransactionDataETY {
     public static final String FIELD_TIPO_ATTIVITA = "tipoAttivita";
     public static final String FIELD_ORGANIZZAZIONE = "organizzazione";
     public static final String FIELD_MICROSERVICE_NAME = "microserviceName";
+    public static final String FIELD_DETAIL = "detail";
     
     @Id
     private String id;
@@ -76,6 +77,8 @@ public class TransactionDataETY {
     private String organizzazione;
     @Field(name = FIELD_MICROSERVICE_NAME)
     private String microserviceName;
+    @Field(name = FIELD_DETAIL)
+    private String detail;
     
 
     public static TransactionDataETY asSuccess(String wif, Date date, Date expiringDate) {

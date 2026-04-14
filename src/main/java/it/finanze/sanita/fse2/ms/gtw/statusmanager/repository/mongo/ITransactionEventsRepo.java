@@ -25,7 +25,7 @@ public interface ITransactionEventsRepo {
     void saveEvent(String workflowInstanceId, String json);
 
     TransactionDataETY saveEvent(String workflowInstanceId, Date eventDate, String eventType, String eventStatus,
-            String traceId, String issuer, String subject);
+            String traceId, String issuer, String subject, String detail);
 
     TransactionDataETY saveEdsEvent(String workflowInstanceId, Date date, String type, String status );
 

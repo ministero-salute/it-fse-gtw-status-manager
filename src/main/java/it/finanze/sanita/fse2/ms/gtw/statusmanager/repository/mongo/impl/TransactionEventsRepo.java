@@ -82,7 +82,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 
 	@Override
 	public TransactionDataETY saveEvent(String workflowInstanceId, Date eventDate, String eventType, String eventStatus,
-			String traceId, String issuer, String subject) {
+			String traceId, String issuer, String subject, String detail) {
 		try {
 			TransactionDataETY entity = new TransactionDataETY();
 			entity.setWorkflowInstanceId(workflowInstanceId);
@@ -106,9 +106,14 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 				entity.setSubject(subject);
 			}
 
-			Date expiringDate = DateUtility.addDay(new Date(), configSRV.getExpirationDate());
-			entity.setExpiringDate(expiringDate);
-			return mongo.insert(entity);
+			if (detail != null) {
+				entity.setDetail(detail);
+			}
+
+	        Date expiringDate = DateUtility.addDay(new Date(), configSRV.getExpirationDate());
+	        entity.setExpiringDate(expiringDate);
+	        return mongo.insert(entity);
+
 		} catch (Exception ex) {
 			log.error("Error while save event : ", ex);
 			throw new BusinessException("Error while save event : ", ex);

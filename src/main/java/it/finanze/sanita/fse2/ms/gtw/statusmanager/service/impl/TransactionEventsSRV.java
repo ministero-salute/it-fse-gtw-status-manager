@@ -88,14 +88,16 @@ public class TransactionEventsSRV extends AbstractService implements ITransactio
         try {
             log.info("START - Save transaction status for workflowInstanceId: {}", request.getWorkflowInstanceId());
 
-            TransactionDataETY savedEntity = transactionEventsRepo.saveEvent(
-                    request.getWorkflowInstanceId(),
-                    request.getInsertionDate(),
-                    request.getType(),
-                    request.getStatus(),
-                    null,
-                    null,
-                    null);
+      TransactionDataETY savedEntity =
+          transactionEventsRepo.saveEvent(
+              request.getWorkflowInstanceId(),
+              request.getInsertionDate(),
+              request.getType(),
+              request.getStatus(),
+              null,
+              null,
+              null,
+              request.getDetail());
 
             log.info("Transaction status saved successfully for workflowInstanceId: {}",
                     request.getWorkflowInstanceId());
