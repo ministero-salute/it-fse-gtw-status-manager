@@ -43,6 +43,7 @@ public final class Constants {
 		public static final String TIPO_ATTIVITA = "tipoAttivita";
 		public static final String ORGANIZZAZIONE = "organizzazione";
 		public static final String MICROSERVICE_NAME = "microserviceName";
+		public static final String CALLBACK_URL = "callbackUrl";
 
 		private Fields() {}
 	}

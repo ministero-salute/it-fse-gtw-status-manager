@@ -46,6 +46,7 @@ public class TransactionDataETY {
     public static final String FIELD_ORGANIZZAZIONE = "organizzazione";
     public static final String FIELD_MICROSERVICE_NAME = "microserviceName";
     public static final String FIELD_DETAIL = "detail";
+    public static final String FIELD_CALLBACK_URL = "callbackUrl";
     
     @Id
     private String id;
@@ -79,6 +80,8 @@ public class TransactionDataETY {
     private String microserviceName;
     @Field(name = FIELD_DETAIL)
     private String detail;
+    @Field(name = FIELD_CALLBACK_URL)
+    private String callbackUrl;
     
 
     public static TransactionDataETY asSuccess(String wif, Date date, Date expiringDate) {
