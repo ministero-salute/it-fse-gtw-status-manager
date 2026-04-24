@@ -27,7 +27,7 @@ public interface ITransactionEventsRepo {
     TransactionDataETY saveEvent(String workflowInstanceId, Date eventDate, String eventType, String eventStatus,
             String traceId, String issuer, String subject, String detail);
 
-    TransactionDataETY saveEdsEvent(String workflowInstanceId, Date date, String type, String status );
+    TransactionDataETY saveEdsEvent(String workflowInstanceId, Date date, String type, String status, String detail);
 
     int saveEventsFhir(List<String> wif, Date timestamp, Date expiration)throws OperationException;
 

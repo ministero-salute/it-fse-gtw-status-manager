@@ -121,12 +121,16 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 	}
 
     @Override
-    public TransactionDataETY saveEdsEvent(String workflowInstanceId, Date date, String type, String status) {
+	public TransactionDataETY saveEdsEvent(String workflowInstanceId, Date date, String type, String status,
+			String detail) {
         TransactionDataETY transactionDataETY = new TransactionDataETY();
         transactionDataETY.setWorkflowInstanceId(workflowInstanceId);
         transactionDataETY.setDate(date);
         transactionDataETY.setType(type);
         transactionDataETY.setStatus(status);
+		if (detail != null) {
+			transactionDataETY.setDetail(detail);
+		}
         return mongo.save(transactionDataETY);
     }
 
