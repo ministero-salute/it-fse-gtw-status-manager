@@ -45,7 +45,7 @@ public class TransactionDataETY {
     public static final String FIELD_TIPO_ATTIVITA = "tipoAttivita";
     public static final String FIELD_ORGANIZZAZIONE = "organizzazione";
     public static final String FIELD_MICROSERVICE_NAME = "microserviceName";
-    public static final String FIELD_DETAIL = "detail";
+    public static final String FIELD_MESSAGE = "message";
     public static final String FIELD_CALLBACK_URL = "callbackUrl";
     
     @Id
@@ -78,8 +78,8 @@ public class TransactionDataETY {
     private String organizzazione;
     @Field(name = FIELD_MICROSERVICE_NAME)
     private String microserviceName;
-    @Field(name = FIELD_DETAIL)
-    private String detail;
+    @Field(name = FIELD_MESSAGE)
+    private String message;
     @Field(name = FIELD_CALLBACK_URL)
     private String callbackUrl;
     

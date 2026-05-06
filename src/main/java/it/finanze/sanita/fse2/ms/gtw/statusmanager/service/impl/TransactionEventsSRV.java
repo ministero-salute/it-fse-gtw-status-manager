@@ -76,7 +76,7 @@ public class TransactionEventsSRV extends AbstractService implements ITransactio
                     request.getInsertionDate(),
                     TransactionDataETY.FHIR_TYPE_UAR,
                     request.getStatus(),
-                    request.getDetail());
+                    request.getMessage());
             log.info("END - Save EDS event for workflowInstanceId: {}", request.getWorkflowInstanceId());
         } catch(Exception ex) {
             log.error("Error while saving EDS event for workflowInstanceId: {}", request.getWorkflowInstanceId(), ex);
@@ -98,7 +98,7 @@ public class TransactionEventsSRV extends AbstractService implements ITransactio
               null,
               null,
               null,
-              request.getDetail());
+              request.getMessage());
 
             log.info("Transaction status saved successfully for workflowInstanceId: {}",
                     request.getWorkflowInstanceId());

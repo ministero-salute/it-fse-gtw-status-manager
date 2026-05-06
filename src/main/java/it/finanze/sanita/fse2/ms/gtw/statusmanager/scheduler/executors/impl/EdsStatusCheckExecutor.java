@@ -127,17 +127,16 @@ public class EdsStatusCheckExecutor {
             }
 
             log.info(
-                    "[EDS-STATUS-CHECK] Received status from EDS: workflowInstanceId={}, status={}, type={}, detail={}",
+                    "[EDS-STATUS-CHECK] Received status from EDS: workflowInstanceId={}, status={}, type={}, message={}",
                     workflowInstanceId, statusResponse.getStatus(), statusResponse.getType(),
-                    statusResponse.getDetail());
+                    statusResponse.getMessage());
 
-            // Save final status event with detail
             transactionRepo.saveEdsEvent(
                     workflowInstanceId,
                     new Date(),
                     TransactionDataETY.FHIR_TYPE_UAR,
                     statusResponse.getStatus(),
-                    statusResponse.getDetail()
+                    statusResponse.getMessage()
             );
 
             log.info(

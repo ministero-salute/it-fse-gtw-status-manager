@@ -44,6 +44,6 @@ public class GetIngestionStatusResDTO {
     @JsonProperty("rde")
     private String rde;
 
-    @JsonProperty("detail")
-    private String detail;
+    @JsonProperty("message")
+    private String message;
 }

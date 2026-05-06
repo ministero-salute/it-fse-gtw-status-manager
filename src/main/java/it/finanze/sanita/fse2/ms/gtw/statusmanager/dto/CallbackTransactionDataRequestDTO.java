@@ -20,5 +20,5 @@ public class CallbackTransactionDataRequestDTO {
     @NotNull
     private String status;
     @NotNull
-    private String detail;
+    private String message;
 }
