@@ -19,6 +19,5 @@ public class CallbackTransactionDataRequestDTO {
 	private Date insertionDate;
     @NotNull
     private String status;
-    @NotNull
     private String message;
 }
