@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
@@ -49,7 +48,7 @@ public class CustomAuthenticateCallbackHandler implements AuthenticateCallbackHa
     
     private String pwd;
 	
-    private AtomicReference<ConfidentialClientApplication> aadClient = new AtomicReference<>();
+    private ConfidentialClientApplication aadClient;
     private ClientCredentialParameters aadParameters;
 
     @Override
@@ -76,11 +75,8 @@ public class CustomAuthenticateCallbackHandler implements AuthenticateCallbackHa
                     OAuthBearerToken token = getOAuthBearerToken();
                     OAuthBearerTokenCallback oauthCallback = (OAuthBearerTokenCallback) callback;
                     oauthCallback.token(token);
-                } catch (InterruptedException e){
-                    log.error("Handle interrupted while acquiring OAuth token", e);
-                    Thread.currentThread().interrupt();
-                } catch (ExecutionException | TimeoutException e) {
-                    log.error("Failed to acquire OAuth token", e);
+                } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                    e.printStackTrace();
                 }
             } else {
                 throw new UnsupportedCallbackException(callback);
@@ -89,9 +85,9 @@ public class CustomAuthenticateCallbackHandler implements AuthenticateCallbackHa
     }
 
     private OAuthBearerToken getOAuthBearerToken() throws MalformedURLException, InterruptedException, ExecutionException, TimeoutException {
-        if (this.aadClient.get() == null){
+        if (this.aadClient == null) {
             synchronized(this) {
-                if (this.aadClient.get() == null) {
+                if (this.aadClient == null) {
                 	IClientCredential credential = null;
             	    try (FileInputStream certificato = new FileInputStream(new File(pfxPathName))) {
                 		credential = ClientCredentialFactory.createFromCertificate(certificato, this.pwd);	
@@ -99,14 +95,14 @@ public class CustomAuthenticateCallbackHandler implements AuthenticateCallbackHa
                 		log.error("Error while try to crate credential from certificate");
                 		throw new BusinessException(ex);
                 	}
-                    this.aadClient.set(ConfidentialClientApplication.builder(this.appId, credential)
+                    this.aadClient = ConfidentialClientApplication.builder(this.appId, credential)
                             .authority(this.tenantId)
-                            .build());
+                            .build();
                 }
             }
         }
 
-        IAuthenticationResult authResult = this.aadClient.get().acquireToken(this.aadParameters).get();
+        IAuthenticationResult authResult = this.aadClient.acquireToken(this.aadParameters).get();
         log.info("Token oauth2 acquired");
         return new OAuthBearerTokenImp(authResult.accessToken(), authResult.expiresOnDate());
     }

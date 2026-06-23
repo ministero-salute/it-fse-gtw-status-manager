@@ -32,7 +32,6 @@ import java.net.ConnectException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -351,6 +350,10 @@ public class EdsStatusCheckExecutor {
             return true;
         }
 
+        // Circuit breaker exceptions - check by class name as a fallback
+        if (ex.getClass().getSimpleName().equals("CircuitBreakerOpenException")) {
+            return true;
+        }
         
         // Default: non-retryable for unknown exceptions (fail-safe approach)
         log.debug("[EDS-STATUS-CHECK] Classifying unknown exception as non-retryable: {}", ex.getClass().getName());
@@ -365,14 +368,13 @@ public class EdsStatusCheckExecutor {
      * @param label   Descriptive label for logging
      * @param attempt Current attempt number (1-based)
      */
-    
     private void backoff(String label, int attempt) {
         // Calculate exponential backoff: 2^(attempt-1) * BASE_BACKOFF_MS
         long baseDelay = BASE_BACKOFF_MS << (attempt - 1);
-        
+
         // Add jitter (0-25% of base delay) to prevent synchronized retries
         // This distributes retry load when multiple instances fail simultaneously
-        long jitter = (long) (baseDelay * 0.25); // Inizialmente implementato mediante Math.random(), flaggato da sonar perchè non certificato per la crittografia.
+        long jitter = (long) (baseDelay * 0.25 * Math.random());
         long sleepMs = baseDelay + jitter;
 
         log.debug("[EDS-STATUS-CHECK] {} backing off for {} ms before retry {}",
