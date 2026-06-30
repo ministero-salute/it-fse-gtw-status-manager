@@ -21,7 +21,6 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.DateUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -192,7 +191,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 										.and(TransactionDataETY.FIELD_PULL_STATUS_OUTCOME).ne(TransactionDataETY.PULL_STATUS_BLOCKED),
 								// OR any final status event
 								Criteria.where(TransactionDataETY.FIELD_EVENT_TYPE).in(
-										TransactionDataETY.FHIR_TYPE_UAR)));
+										TransactionDataETY.UAR_FINAL_STATUS)));
 
 		// Step 2: Group by workflowInstanceId and collect event types
 		org.springframework.data.mongodb.core.aggregation.GroupOperation groupByWif = org.springframework.data.mongodb.core.aggregation.Aggregation
@@ -205,7 +204,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 		org.springframework.data.mongodb.core.aggregation.MatchOperation matchPending = org.springframework.data.mongodb.core.aggregation.Aggregation
 				.match(
 						Criteria.where("eventTypes").all("SEND_TO_UAR")
-								.nin(TransactionDataETY.FHIR_TYPE_UAR));
+								.nin(TransactionDataETY.UAR_FINAL_STATUS));
 
 		// Step 4: Project to return only needed fields
 		org.springframework.data.mongodb.core.aggregation.ProjectionOperation project = org.springframework.data.mongodb.core.aggregation.Aggregation

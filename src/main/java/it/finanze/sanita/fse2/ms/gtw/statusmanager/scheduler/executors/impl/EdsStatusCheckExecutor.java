@@ -12,11 +12,15 @@
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.scheduler.executors.impl;
 
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.client.IEdsClient;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.CallbackTransactionDataRequestDTO;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.client.eds.GetIngestionStatusResDTO;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.RemoteServiceNotAvailableException;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.entity.TransactionDataETY;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.repository.mongo.ITransactionEventsRepo;
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.service.ITransactionEventsSRV;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,10 +36,14 @@ import java.net.ConnectException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -46,18 +54,28 @@ public class EdsStatusCheckExecutor {
 
     private static final int MAX_RETRIES = 3;
     private static final long BASE_BACKOFF_MS = 2_000;
+    private static final String PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    private static final String EVENT_TYPE = "eventType";
+    private static final String EVENT_DATE = "eventDate";
+    private static final String EVENT_STATUS = "eventStatus";
+    private static final String MESSAGE = "message";
 
     private final IEdsClient edsClient;
     private final ITransactionEventsRepo transactionRepo;
+    private final ITransactionEventsSRV transactionEventsSRV;
+    private final ObjectMapper objectMapper;
 
     @Value("${scheduler.eds-status-check.event-age-threshold-minutes}")
     private int eventAgeThresholdMinutes;
 
     private final int MAX_RESULT = 1000;
 
-    public EdsStatusCheckExecutor(IEdsClient edsClient, ITransactionEventsRepo transactionRepo) {
+    public EdsStatusCheckExecutor(IEdsClient edsClient, ITransactionEventsRepo transactionRepo,
+            ITransactionEventsSRV transactionEventsSRV, ObjectMapper objectMapper) {
         this.edsClient = edsClient;
         this.transactionRepo = transactionRepo;
+        this.transactionEventsSRV = transactionEventsSRV;
+        this.objectMapper = objectMapper;
     }
 
     @Scheduled(cron = "${scheduler.tx-scheduler}")
@@ -131,13 +149,17 @@ public class EdsStatusCheckExecutor {
                     workflowInstanceId, statusResponse.getStatus(), statusResponse.getType(),
                     statusResponse.getMessage());
 
-            transactionRepo.saveEdsEvent(
-                    workflowInstanceId,
-                    new Date(),
-                    TransactionDataETY.FHIR_TYPE_UAR,
-                    statusResponse.getStatus(),
-                    statusResponse.getMessage()
-            );
+            CallbackTransactionDataRequestDTO request = CallbackTransactionDataRequestDTO.builder()
+                    .workflowInstanceId(workflowInstanceId)
+                    .type(TransactionDataETY.UAR_FINAL_STATUS)
+                    .status(statusResponse.getStatus())
+                    .insertionDate(new Date())
+                    .message(statusResponse.getMessage())
+                    .build();
+
+            String json = serializeToJson(request);
+
+            transactionEventsSRV.saveEvent(workflowInstanceId, json);
 
             log.info(
                     "[EDS-STATUS-CHECK] Successfully updated transaction status: workflowInstanceId={}, finalStatus={}",
@@ -204,6 +226,23 @@ public class EdsStatusCheckExecutor {
                     workflowInstanceId, ex);
             // Don't rethrow - this is a best-effort operation
         }
+    }
+
+    private String serializeToJson(CallbackTransactionDataRequestDTO request) throws JsonProcessingException {
+        Map<String, Object> jsonMap = new HashMap<>();
+        jsonMap.put(EVENT_TYPE, request.getType());
+        jsonMap.put(EVENT_DATE, formatDate(request.getInsertionDate()));
+        jsonMap.put(EVENT_STATUS, request.getStatus());
+        if (request.getMessage() != null) {
+            jsonMap.put(MESSAGE, request.getMessage());
+        }
+        return objectMapper.writeValueAsString(jsonMap);
+    }
+
+    private String formatDate(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat(PATTERN);
+        sdf.setTimeZone(TimeZone.getDefault());
+        return sdf.format(date);
     }
 
     /**

@@ -74,7 +74,7 @@ public class TransactionEventsSRV extends AbstractService implements ITransactio
             transactionEventsRepo.saveEdsEvent(
                     request.getWorkflowInstanceId(),
                     request.getInsertionDate(),
-                    TransactionDataETY.FHIR_TYPE_UAR,
+                    TransactionDataETY.UAR_FINAL_STATUS,
                     request.getStatus(),
                     request.getMessage());
             log.info("END - Save EDS event for workflowInstanceId: {}", request.getWorkflowInstanceId());
