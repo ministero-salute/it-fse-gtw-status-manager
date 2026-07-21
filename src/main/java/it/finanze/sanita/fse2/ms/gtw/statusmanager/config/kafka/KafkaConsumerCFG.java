@@ -59,8 +59,7 @@ public class KafkaConsumerCFG {
 	 * 
 	 * @return	configurazione consumer
 	 */
-	@Bean
-	public Map<String, Object> consumerConfigs() {
+	private Map<String, Object> consumerConfigs() {
 		Map<String, Object> props = new HashMap<>();
 		
 		props.put(ConsumerConfig.CLIENT_ID_CONFIG, kafkaConsumerPropCFG.getClientId());
@@ -132,7 +131,7 @@ public class KafkaConsumerCFG {
 		
 		DeadLetterPublishingRecoverer dlpr = new DeadLetterPublishingRecoverer(deadLetterKafkaTemplate, (consumerRecord, ex) -> new TopicPartition(topicCFG.getStatusManagerTopicDlt(), -1));
 		// Set classificazione errori da gestire per la deadLetter.
-		DefaultErrorHandler sceh = new DefaultErrorHandler(dlpr, new FixedBackOff(FixedBackOff.DEFAULT_INTERVAL, FixedBackOff.UNLIMITED_ATTEMPTS));
+		DefaultErrorHandler sceh = new DefaultErrorHandler(dlpr, new FixedBackOff(kafkaConsumerPropCFG.getRetryIntervalMs(), kafkaConsumerPropCFG.getNRetry()));
 		
 		log.debug("Setting dead letter classification");
 		setClassification(sceh);
@@ -142,25 +141,7 @@ public class KafkaConsumerCFG {
 
 		return factory;
 	}
-	
-	@Bean
-	public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaListenerDeadLetterContainerFactoryEds(final @Qualifier("notxkafkadeadtemplate") KafkaTemplate<Object, Object> deadLetterKafkaTemplate) {
-		ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
-		factory.setConsumerFactory(consumerFactory());
-		
-		DeadLetterPublishingRecoverer dlpr = new DeadLetterPublishingRecoverer(deadLetterKafkaTemplate, (consumerRecord, ex) -> new TopicPartition(topicCFG.getStatusManagerEdsTopicDlt(), -1));
-		// Set classificazione errori da gestire per la deadLetter.
-		DefaultErrorHandler sceh = new DefaultErrorHandler(dlpr, new FixedBackOff(FixedBackOff.DEFAULT_INTERVAL, FixedBackOff.UNLIMITED_ATTEMPTS));
-		
-		log.debug("Setting dead letter classification");
-		setClassification(sceh);
-		
-		// da eliminare se non si volesse gestire la dead letter
-		factory.setCommonErrorHandler(sceh); 
-
-		return factory;
-	}
-	
+	 
 	private void setClassification(final DefaultErrorHandler sceh) {
 		List<Class<? extends Exception>> out = getExceptionsConfig();
 

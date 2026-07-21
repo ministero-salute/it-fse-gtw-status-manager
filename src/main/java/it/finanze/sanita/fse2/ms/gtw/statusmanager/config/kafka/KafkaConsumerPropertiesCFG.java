@@ -79,5 +79,16 @@ public class KafkaConsumerPropertiesCFG {
 	@Value("${kafka.properties.security.protocol}")
 	private String protocol;
 	
+	/**
+	 * Kafka retry.
+	 */
+	@Value("${kafka.retry}")
+	private Integer nRetry;
+	
+	/**
+	 * Kafka retry.
+	 */
+	@Value("${kafka.retryIntervalMs}")
+	private Integer retryIntervalMs;
 	 
 }
