@@ -14,10 +14,10 @@ package it.finanze.sanita.fse2.ms.gtw.statusmanager.service.impl;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.kafka.KafkaTopicCFG;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.CallbackTransactionDataRequestDTO;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.dto.CallbackTransactionDataResponseDTO;
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
@@ -42,8 +42,8 @@ public class TransactionEventsSRV extends AbstractService implements ITransactio
     @Qualifier("notxkafkatemplate")
     private KafkaTemplate<String, String> kafkaTemplate;
 
-    @Value("${kafka.statusmanager.finalstatus.topic}")
-    private String finalStateTopic;
+    @Autowired
+    private KafkaTopicCFG kafkaTopicCfg;
 
 	@Override
     public void saveEvent(final String workflowInstanceId, final String json) {
@@ -178,9 +178,8 @@ public class TransactionEventsSRV extends AbstractService implements ITransactio
      */
     private void sendFinalStatusKafkaMessage(String entityId, String workflowInstanceId) {
         try {
-            kafkaTemplate.send(finalStateTopic, entityId, workflowInstanceId);
-            log.debug("Kafka message sent to topic: {} for workflowInstanceId: {}", finalStateTopic,
-                    workflowInstanceId);
+            kafkaTemplate.send(kafkaTopicCfg.getFinalStateTopic() , entityId, workflowInstanceId);
+            log.debug("Kafka message sent to topic: {} for workflowInstanceId: {}", kafkaTopicCfg.getFinalStateTopic(), workflowInstanceId);
         } catch (Exception ex) {
             log.error("Error sending Kafka notification to Touchpoint Regionale for workflowInstanceId: {}",
                     workflowInstanceId, ex);

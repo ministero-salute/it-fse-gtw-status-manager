@@ -40,11 +40,7 @@ public class KafkaReceiverSRV implements IKafkaReceiverSRV {
 	    String key = cr.key();
 	    log.info("GTW LISTENER - Consuming transaction event - Message received with key {}", key != null ? key : "null");
 
-	    try {
-	        abstractListener(cr);
-	    } catch (Exception e) {
-	        log.error("Error during abstractListener execution", e);
-	    }
+	    abstractListener(cr);
 	}
 
 	

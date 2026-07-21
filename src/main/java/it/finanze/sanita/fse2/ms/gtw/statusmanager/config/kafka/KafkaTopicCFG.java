@@ -36,33 +36,26 @@ public class KafkaTopicCFG {
 	 */
 	@Value("${kafka.statusmanager.topic}")
 	private String statusManagerTopic;
-	
-	/**
-	 * Topic.
-	 */
-	@Value("${kafka.statusmanager.eds.topic}")
-	private String statusManagerEdsTopic;
-	
+
 	/**
 	 * Topic.
 	 */
 	@Value("${kafka.statusmanager.deadletter.topic}")
 	private String statusManagerTopicDlt;
-	
+
+
 	/**
 	 * Topic.
 	 */
-	@Value("${kafka.statusmanager.eds.deadletter.topic}")
-	private String statusManagerEdsTopicDlt;
+	@Value("${kafka.statusmanager.finalstatus.topic}")
+	private String finalStateTopic;
 
 	@PostConstruct
 	public void afterInit() {
 		if (profileUtility.isTestProfile()) {
 			statusManagerTopic = Constants.Profile.TEST_PREFIX + statusManagerTopic;
-			statusManagerEdsTopic = Constants.Profile.TEST_PREFIX + statusManagerEdsTopic;
 			statusManagerTopicDlt = Constants.Profile.TEST_PREFIX + statusManagerTopicDlt;
-			statusManagerEdsTopicDlt = Constants.Profile.TEST_PREFIX + statusManagerEdsTopicDlt;
-			
+			finalStateTopic = Constants.Profile.TEST_PREFIX + finalStateTopic;
 		}
 	}
 }

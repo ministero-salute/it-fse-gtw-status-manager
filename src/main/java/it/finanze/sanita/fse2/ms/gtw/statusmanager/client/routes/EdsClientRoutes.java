@@ -25,7 +25,7 @@ public final class EdsClientRoutes {
     private MicroservicesURLCFG microservices;
 
     public UriComponentsBuilder base() {
-        return UriComponentsBuilder.fromHttpUrl(microservices.getEdsClientHost());
+        return UriComponentsBuilder.fromUriString(microservices.getEdsClientHost());
     }
 
     public String identifier() {
