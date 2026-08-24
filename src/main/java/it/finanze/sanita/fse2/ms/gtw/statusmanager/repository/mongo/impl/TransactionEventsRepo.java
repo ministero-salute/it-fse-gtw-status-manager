@@ -189,9 +189,11 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 										.and(TransactionDataETY.FIELD_EVENT_STATUS).is("SUCCESS")
 										.and(TransactionDataETY.FIELD_EVENT_DATE).lt(thresholdDate)
 										.and(TransactionDataETY.FIELD_PULL_STATUS_OUTCOME).ne(TransactionDataETY.PULL_STATUS_BLOCKED),
-								// OR any final status event
+								// OR any final status events
 								Criteria.where(TransactionDataETY.FIELD_EVENT_TYPE).in(
-										TransactionDataETY.UAR_FINAL_STATUS)));
+										TransactionDataETY.UAR_FINAL_STATUS),
+								Criteria.where(TransactionDataETY.FIELD_EVENT_TYPE).in(
+										TransactionDataETY.BROKER_COMMUNICATION_ERROR)));
 
 		// Step 2: Group by workflowInstanceId and collect event types
 		org.springframework.data.mongodb.core.aggregation.GroupOperation groupByWif = org.springframework.data.mongodb.core.aggregation.Aggregation
@@ -204,7 +206,7 @@ public class TransactionEventsRepo implements ITransactionEventsRepo {
 		org.springframework.data.mongodb.core.aggregation.MatchOperation matchPending = org.springframework.data.mongodb.core.aggregation.Aggregation
 				.match(
 						Criteria.where("eventTypes").all("SEND_TO_UAR")
-								.nin(TransactionDataETY.UAR_FINAL_STATUS));
+								.nin(TransactionDataETY.UAR_FINAL_STATUS, TransactionDataETY.BROKER_COMMUNICATION_ERROR));
 
 		// Step 4: Project to return only needed fields
 		org.springframework.data.mongodb.core.aggregation.ProjectionOperation project = org.springframework.data.mongodb.core.aggregation.Aggregation
