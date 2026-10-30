@@ -23,6 +23,7 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.ProfileUtility;
 @SpringJUnitConfig(ConfigServiceIsolationTest.Context.class)
 @TestPropertySource(properties = "ms.config.refresh-rate=900000")
 class ConfigServiceIsolationTest {
+    @org.springframework.context.annotation.Profile("ISOLATION")
     @org.springframework.context.annotation.Configuration(proxyBeanMethods = false)
     static class Context {
         @org.springframework.context.annotation.Bean

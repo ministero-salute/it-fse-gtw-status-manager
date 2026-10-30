@@ -34,6 +34,7 @@ import it.finanze.sanita.fse2.ms.gtw.statusmanager.config.kafka.oauth2.CustomAut
 class KafkaConfigurationIsolationTest {
     // Plain configuration instances allow each scenario to build its own factories.
     // No @EnableKafka and no producer/consumer is ever created or started.
+    @org.springframework.context.annotation.Profile("ISOLATION")
     @Configuration(proxyBeanMethods = false)
     static class Context {
         @Bean KafkaProducerCFG producerConfiguration() { return new KafkaProducerCFG(); }
