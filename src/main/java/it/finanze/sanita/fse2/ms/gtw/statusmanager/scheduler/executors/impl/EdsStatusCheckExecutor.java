@@ -390,7 +390,8 @@ public class EdsStatusCheckExecutor {
         }
 
         // Circuit breaker exceptions - check by class name as a fallback
-        if (ex.getClass().getSimpleName().equals("CircuitBreakerOpenException")) {
+        // Intentionally avoid a compile-time dependency on an optional circuit breaker exception type.
+        if (ex.getClass().getSimpleName().equals("CircuitBreakerOpenException")) { // NOSONAR - Name-based fallback for an exception type not present in this project's dependencies.
             return true;
         }
         
@@ -413,7 +414,8 @@ public class EdsStatusCheckExecutor {
 
         // Add jitter (0-25% of base delay) to prevent synchronized retries
         // This distributes retry load when multiple instances fail simultaneously
-        long jitter = (long) (baseDelay * 0.25 * Math.random());
+        // Predictability is harmless: jitter only affects retry timing, not security-sensitive values.
+        long jitter = (long) (baseDelay * 0.25 * Math.random()); // NOSONAR - Non-cryptographic randomness is sufficient for retry jitter.
         long sleepMs = baseDelay + jitter;
 
         log.debug("[EDS-STATUS-CHECK] {} backing off for {} ms before retry {}",

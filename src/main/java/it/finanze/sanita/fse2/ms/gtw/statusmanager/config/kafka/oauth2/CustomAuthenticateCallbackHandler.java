@@ -3,11 +3,9 @@
 
 package it.finanze.sanita.fse2.ms.gtw.statusmanager.config.kafka.oauth2;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Arrays;
@@ -34,7 +32,6 @@ import com.microsoft.aad.msal4j.IAuthenticationResult;
 import com.microsoft.aad.msal4j.IClientCredential;
 
 import it.finanze.sanita.fse2.ms.gtw.statusmanager.exceptions.BusinessException;
-import it.finanze.sanita.fse2.ms.gtw.statusmanager.utility.FileUtility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -75,8 +72,11 @@ public class CustomAuthenticateCallbackHandler implements AuthenticateCallbackHa
                     OAuthBearerToken token = getOAuthBearerToken();
                     OAuthBearerTokenCallback oauthCallback = (OAuthBearerTokenCallback) callback;
                     oauthCallback.token(token);
-                } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException("Interrupted while acquiring OAuth bearer token", e);
+                } catch (ExecutionException | TimeoutException e) {
+                    log.error("Failed to acquire OAuth bearer token", e);
                 }
             } else {
                 throw new UnsupportedCallbackException(callback);
@@ -85,26 +85,25 @@ public class CustomAuthenticateCallbackHandler implements AuthenticateCallbackHa
     }
 
     private OAuthBearerToken getOAuthBearerToken() throws MalformedURLException, InterruptedException, ExecutionException, TimeoutException {
-        if (this.aadClient == null) {
-            synchronized(this) {
-                if (this.aadClient == null) {
-                	IClientCredential credential = null;
-            	    try (FileInputStream certificato = new FileInputStream(new File(pfxPathName))) {
-                		credential = ClientCredentialFactory.createFromCertificate(certificato, this.pwd);	
-                	} catch(Exception ex) {
-                		log.error("Error while try to crate credential from certificate");
-                		throw new BusinessException(ex);
-                	}
-                    this.aadClient = ConfidentialClientApplication.builder(this.appId, credential)
-                            .authority(this.tenantId)
-                            .build();
-                }
-            }
-        }
-
-        IAuthenticationResult authResult = this.aadClient.acquireToken(this.aadParameters).get();
+        IAuthenticationResult authResult = getAadClient().acquireToken(this.aadParameters).get();
         log.info("Token oauth2 acquired");
         return new OAuthBearerTokenImp(authResult.accessToken(), authResult.expiresOnDate());
+    }
+
+    private synchronized ConfidentialClientApplication getAadClient() throws MalformedURLException {
+        if (this.aadClient == null) {
+            IClientCredential credential = null;
+            try (FileInputStream certificato = new FileInputStream(new File(pfxPathName))) {
+                credential = ClientCredentialFactory.createFromCertificate(certificato, this.pwd);
+            } catch(Exception ex) {
+                log.error("Error while try to crate credential from certificate");
+                throw new BusinessException(ex);
+            }
+            this.aadClient = ConfidentialClientApplication.builder(this.appId, credential)
+                    .authority(this.tenantId)
+                    .build();
+        }
+        return this.aadClient;
     }
 
     public void close() throws KafkaException {
