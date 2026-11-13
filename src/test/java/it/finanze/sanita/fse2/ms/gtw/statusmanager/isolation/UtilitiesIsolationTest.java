@@ -63,7 +63,7 @@ class UtilitiesIsolationTest {
     void stringsDistinguishEmptyFromWhitespaceAndResourcesReturnBytesOrNull() {
         assertTrue(StringUtility.isNullOrEmpty(null)); assertTrue(StringUtility.isNullOrEmpty(""));
         assertFalse(StringUtility.isNullOrEmpty(" ")); assertFalse(StringUtility.isNullOrEmpty("value"));
-        var bytes = FileUtility.getFileFromInternalResources("application.properties");
+        var bytes = FileUtility.getFileFromInternalResources("application-test.properties");
         assertNotNull(bytes); assertFalse(new String(bytes, StandardCharsets.UTF_8).isBlank());
         assertNull(FileUtility.getFileFromInternalResources("isolation-resource-does-not-exist"));
     }
