@@ -20,22 +20,6 @@ public final class ClientRoutes {
     private ClientRoutes() {}
 
     @NoArgsConstructor(access = PRIVATE)
-    public static final class Processor {
-        // COMMON
-        public static final String IDENTIFIER = "[PRC]";
-        public static final String IDENTIFIER_MS = "processor";
-        // PATH PARAMS
-        public static final String TIMESTAMP_QP = "timestamp";
-        public static final String PAGE_QP = "page";
-        public static final String LIMIT_QP = "limit";
-        public static final String REGION_PATH_PARAM = "rda";
-        // ENDPOINT
-        public static final String API_VERSION = "v1";
-        public static final String TRANSACTIONS_PATH = "transactions";
-        
-    }
-
-    @NoArgsConstructor(access = PRIVATE)
     public static final class Config {
         // COMMON
         public static final String IDENTIFIER_MS = "cfg";

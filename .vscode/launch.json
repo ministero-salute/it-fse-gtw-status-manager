@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-StatusManagerApplication<gtw-status-manager-ms>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "it.finanze.sanita.fse2.ms.gtw.statusmanager.StatusManagerApplication",
+            "projectName": "gtw-status-manager-ms",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

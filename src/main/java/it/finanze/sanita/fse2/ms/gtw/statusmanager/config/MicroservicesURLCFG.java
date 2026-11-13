@@ -21,12 +21,6 @@ import lombok.Getter;
 public class MicroservicesURLCFG {
 
 	/**
-	 * Data processor host.
-	 */
-	@Value("${ms.url.eds-broker}")
-	private String processorHost;
-	
-	/**
 	 * Config gtw host.
 	 */
 	@Value("${ms.url.gtw-config}")
